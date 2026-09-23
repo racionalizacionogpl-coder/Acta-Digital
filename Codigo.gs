@@ -238,7 +238,7 @@ function generarActaPDF(datos, token) {
     
     // Generación del Código QR dinámico (Se ubicará en el pie de página)
     var fechaEmision = Utilities.formatDate(now, Session.getScriptTimeZone(), 'dd/MM/yyyy');
-    var qrText = encodeURIComponent("Documento Original SIGEA. " + idActa + " Fecha: " + fechaEmision);
+    var qrText = encodeURIComponent("Documento Original SIGA. " + idActa + " Fecha: " + fechaEmision);
     var qrUrl = "https://quickchart.io/qr?size=120&text=" + qrText;
     
     var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
@@ -246,10 +246,23 @@ function generarActaPDF(datos, token) {
       '@page { margin: 40px; }' +
       'body { font-family: Arial, sans-serif; color: #000; font-size: 11px; }' +
       '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
+      '.institucional { text-align: center; margin-bottom: 8px; }' +
+      '.institucional img { height: 65px; margin-bottom: 6px; }' +
+      '.institucional .uni-nombre { font-family: Georgia, "Times New Roman", Times, serif; font-weight: bold; font-size: 15px; color: #16305c; }' +
+      '.institucional .uni-sub { font-family: Georgia, "Times New Roman", Times, serif; font-size: 11.5px; color: #16305c; }' +
+      '.institucional .uni-oficina { font-family: Georgia, "Times New Roman", Times, serif; font-weight: bold; font-size: 12.5px; color: #16305c; }' +
+      '.institucional-rule { border: none; border-top: 1pt solid #999; margin: 8px 0 18px 0; }' +
       '.header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: none; }' +
       '.header-table td { border: none; text-align: center; vertical-align: middle; }' +
-      '.box-left { border: 1.5pt solid #000 !important; width: 25%; font-weight: bold; font-size: 12px; padding: 8px; }' +
-      '.box-center { width: 75%; line-height: 1.3; }' +
+      '.box-left { border: 1.5pt solid #000 !important; width: 22%; font-weight: bold; font-size: 12px; padding: 8px; }' +
+      '.box-title { width: 63%; font-weight: bold; font-size: 24px; }' +
+      '.box-logo { border: 1.5pt solid #000 !important; width: 15%; padding: 6px; }' +
+      '.box-logo img { max-height: 55px; max-width: 100%; }' +
+      '.agenda-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1pt solid #000; }' +
+      '.agenda-table td { border: 1pt solid #000; padding: 6px; }' +
+      '.agenda-header { background-color: #d9e2f3 !important; font-weight: bold; }' +
+      '.agenda-table ol { margin: 0; padding-left: 20px; }' +
+      '.agenda-table li { margin-bottom: 4px; }' +
       '.info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }' +
       '.info-table td { border: 1pt solid #000; padding: 6px; }' +
       '.info-label { background-color: #d9e2f3 !important; font-weight: bold; width: 20%; }' +
@@ -264,15 +277,20 @@ function generarActaPDF(datos, token) {
       '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.5pt solid #ccc; padding: 5px; box-sizing: border-box; }' +
       '</style></head><body>' +
       
-      // CABECERA (Recuadro izquierdo y Título centrado)
+      // CABECERA INSTITUCIONAL (Escudo + Universidad + Oficina, centrado)
+      '<div class="institucional">' +
+      '<img src="' + LOGO_UNMSM + '" alt="Escudo UNMSM"/>' +
+      '<div class="uni-nombre">UNIVERSIDAD NACIONAL MAYOR DE SAN MARCOS</div>' +
+      '<div class="uni-sub">Universidad del Perú. Decana de América</div>' +
+      '<div class="uni-oficina">OFICINA GENERAL DE PLANIFICACIÓN</div>' +
+      '</div>' +
+      '<hr class="institucional-rule"/>' +
+
+      // CABECERA (Recuadro Acta N°, título y escudo)
       '<table class="header-table"><tr>' +
       '<td class="box-left">ACTA N°<br>' + numeroActa + '-' + anio + '-OR-<br>OGPL/UNMSM</td>' +
-      '<td class="box-center">' +
-      '<span style="font-weight: bold; font-size: 14px;">UNIVERSIDAD NACIONAL MAYOR DE SAN MARCOS</span><br>' +
-      '<span style="font-size: 12px;">Universidad del Perú. Decana de América</span><br>' +
-      '<span style="font-weight: bold; font-size: 12px;">OFICINA GENERAL DE PLANIFICACIÓN</span><br><br>' +
-      '<span style="font-weight: bold; font-size: 16px; text-decoration: underline;">ACTA DE REUNIÓN</span>' +
-      '</td>' +
+      '<td class="box-title">ACTA DE REUNIÓN</td>' +
+      '<td class="box-logo"><img src="' + LOGO_UNMSM + '" alt="Escudo UNMSM"/></td>' +
       '</tr></table>' +
       
       // DETALLES DE REUNIÓN (Info Section)
@@ -322,10 +340,12 @@ function generarActaPDF(datos, token) {
     htmlStr += '</tbody></table>';
       
     // AGENDA
-    htmlStr += '<div style="font-weight: bold; margin-bottom: 5px;">Agenda a tratar:</div>' +
-      '<ol style="margin-top: 0; padding-left: 20px; margin-bottom: 20px;">' +
-      (datos.agenda.length > 0 ? datos.agenda.map(function(item) { return '<li style="margin-bottom: 4px;">' + item + '</li>'; }).join('') : '<li>---</li>') +
-      '</ol>';
+    htmlStr += '<table class="agenda-table">' +
+      '<tr><td class="agenda-header">Agenda a tratar:</td></tr>' +
+      '<tr><td><ol>' +
+      (datos.agenda.length > 0 ? datos.agenda.map(function(item) { return '<li>' + item + '</li>'; }).join('') : '<li>---</li>') +
+      '</ol></td></tr>' +
+      '</table>';
       
     // ACUERDOS (SIN PLAZO)
     if (datos.acuerdos.length > 0) {
@@ -389,12 +409,12 @@ function generarActaPDF(datos, token) {
       '<td style="width: 15%; text-align: left;">' +
       '<img src="' + qrUrl + '" style="max-height: 70px;" alt="QR Code"/></td>' +
       '<td style="width: 70%; text-align: justify; font-size: 9.5px; padding: 0 15px; color: #222;">' +
-      'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGEA). ' +
+      'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). ' +
       'Este documento es original y tiene validez conforme a la normativa vigente. Oficina de ' +
       'Racionalización / Oficina General de Planificación- UNMSM. Fecha de emisión: ' + fechaEmision + '.' +
       '</td>' +
       '<td style="width: 15%; text-align: right; vertical-align: bottom; font-size: 11px; font-weight: bold;">' +
-      'Pág. 1</td>' +
+      '<span style="border: 1pt solid #000; padding: 3px 10px; display: inline-block;">Pág. 1</span></td>' +
       '</tr></table></body></html>';
     
     var blob = HtmlService.createHtmlOutput(htmlStr).getAs(MimeType.PDF);
