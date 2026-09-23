@@ -244,14 +244,14 @@ function generarActaPDF(datos, token) {
     var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
       '<style>' +
       '@page { margin: 40px; }' +
-      'body { font-family: Arial, sans-serif; color: #000; font-size: 11px; }' +
+      'body { font-family: Arial, sans-serif; color: #000; font-size: 11px; padding-bottom: 90px; }' +
       '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
       '.institucional { text-align: center; margin-bottom: 8px; }' +
       '.institucional img { height: 65px; margin-bottom: 6px; }' +
       '.institucional .uni-nombre { font-family: Georgia, "Times New Roman", Times, serif; font-weight: bold; font-size: 15px; color: #16305c; }' +
       '.institucional .uni-sub { font-family: Georgia, "Times New Roman", Times, serif; font-size: 11.5px; color: #16305c; }' +
       '.institucional .uni-oficina { font-family: Georgia, "Times New Roman", Times, serif; font-weight: bold; font-size: 12.5px; color: #16305c; }' +
-      '.institucional-rule { border: none; border-top: 1pt solid #999; margin: 8px 0 18px 0; }' +
+      '.institucional-rule { border: none; border-top: 0.5pt solid #ccc; margin: 8px 0 18px 0; }' +
       '.header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: none; }' +
       '.header-table td { border: none; text-align: center; vertical-align: middle; }' +
       '.box-left { border: 1.5pt solid #000 !important; width: 22%; font-weight: bold; font-size: 12px; padding: 8px; }' +
@@ -271,7 +271,8 @@ function generarActaPDF(datos, token) {
       '.data-table th { background-color: #d9e2f3 !important; font-weight: bold; }' +
       '.signature-table { width: 100%; border: none !important; margin: 0; padding: 0; text-align: left; }' +
       '.signature-table td { border: none !important; padding: 1px; line-height: 1.2; font-size: 8.5px; }' +
-      '.footer-table { width: 100%; margin-top: 30px; border-top: 1.5pt solid #000 !important; padding-top: 10px; border-collapse: collapse; }' +
+      '.pie-pagina { position: fixed; bottom: 20px; left: 40px; right: 40px; }' +
+      '.footer-table { width: 100%; border-top: 1.5pt solid #000 !important; padding-top: 10px; border-collapse: collapse; }' +
       '.footer-table td { border: none; vertical-align: middle; }' +
       '.page-break { page-break-before: always; }' +
       '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.5pt solid #ccc; padding: 5px; box-sizing: border-box; }' +
@@ -404,8 +405,8 @@ function generarActaPDF(datos, token) {
       htmlStr += '</div>';
     }
     
-    // PIE DE PÁGINA (Con QR dinámico y número de página manual)
-    htmlStr += '<table class="footer-table"><tr>' +
+    // PIE DE PÁGINA (Con QR dinámico y número de página manual) — fijo al fondo de la hoja
+    htmlStr += '<div class="pie-pagina"><table class="footer-table"><tr>' +
       '<td style="width: 15%; text-align: left;">' +
       '<img src="' + qrUrl + '" style="max-height: 70px;" alt="QR Code"/></td>' +
       '<td style="width: 70%; text-align: justify; font-size: 9.5px; padding: 0 15px; color: #222;">' +
@@ -415,7 +416,7 @@ function generarActaPDF(datos, token) {
       '</td>' +
       '<td style="width: 15%; text-align: right; vertical-align: bottom; font-size: 11px; font-weight: bold;">' +
       '<span style="border: 1pt solid #000; padding: 3px 10px; display: inline-block;">Pág. 1</span></td>' +
-      '</tr></table></body></html>';
+      '</tr></table></div></body></html>';
     
     var blob = HtmlService.createHtmlOutput(htmlStr).getAs(MimeType.PDF);
     blob.setName(idActaSolo + ' - ' + datos.tema + '.pdf'); 
