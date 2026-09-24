@@ -243,10 +243,10 @@ function generarActaPDF(datos, token) {
     
     var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
       '<style>' +
-      '@page { size: A4; margin: 12mm 16mm; }' +
+      '@page { size: A4; margin: 12mm 16mm 26mm 16mm; }' +
       '* { box-sizing: border-box; }' +
       'html, body {' +
-      '  margin: 0; padding: 0;' +
+      '  margin: 0; padding: 0 0 6mm 0;' +
       '  font-family: Georgia, "Times New Roman", serif;' +
       '  color: #2e2e2e;' +
       '  background: #ffffff;' +
@@ -301,7 +301,7 @@ function generarActaPDF(datos, token) {
       '.anexo-titulo { text-align: center; font-size: 12pt; font-weight: bold; color: var(--principal-oscuro); text-transform: uppercase; letter-spacing: 0.5pt; border-bottom: 0.7pt solid var(--linea); padding-bottom: 3mm; margin: 0 0 6mm 0; }' +
       '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.6pt solid var(--linea); padding: 5px; box-sizing: border-box; vertical-align: top; }' +
       '.page-break { page-break-before: always; }' +
-      '.footer { margin-top: 8mm; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; }' +
+      '.footer { position: fixed; bottom: 0; left: 0; right: 0; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; background: #ffffff; }' +
       '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
       '.footer .txt { flex: 1; }' +
       '.footer .pag { flex-shrink: 0; border: 0.6pt solid var(--linea); padding: 1mm 3mm; font-size: 8pt; font-weight: bold; color: var(--principal); align-self: center; }' +
