@@ -243,74 +243,108 @@ function generarActaPDF(datos, token) {
     
     var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
       '<style>' +
-      '@page { margin: 40px; }' +
-      'body { font-family: Arial, sans-serif; color: #000; font-size: 11px; padding-bottom: 90px; }' +
-      '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
-      '.institucional { text-align: center; margin-bottom: 8px; }' +
-      '.institucional img { height: 65px; margin-bottom: 6px; }' +
-      '.institucional .uni-nombre { font-family: Georgia, "Times New Roman", Times, serif; font-weight: bold; font-size: 15px; color: #16305c; }' +
-      '.institucional .uni-sub { font-family: Georgia, "Times New Roman", Times, serif; font-size: 11.5px; color: #16305c; }' +
-      '.institucional .uni-oficina { font-family: Georgia, "Times New Roman", Times, serif; font-weight: bold; font-size: 12.5px; color: #16305c; }' +
-      '.institucional-rule { border: none; border-top: 0.5pt solid #ccc; margin: 8px 0 18px 0; }' +
-      '.header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: none; }' +
-      '.header-table td { border: none; text-align: center; vertical-align: middle; }' +
-      '.box-left { border: 1.5pt solid #000 !important; width: 22%; font-weight: bold; font-size: 12px; padding: 8px; }' +
-      '.box-title { width: 63%; font-weight: bold; font-size: 24px; }' +
-      '.box-logo { border: 1.5pt solid #000 !important; width: 15%; padding: 6px; }' +
-      '.box-logo img { max-height: 55px; max-width: 100%; }' +
-      '.agenda-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1pt solid #000; }' +
-      '.agenda-table td { border: 1pt solid #000; padding: 6px; }' +
-      '.agenda-header { background-color: #d9e2f3 !important; font-weight: bold; }' +
-      '.agenda-table ol { margin: 0; padding-left: 20px; }' +
-      '.agenda-table li { margin-bottom: 4px; }' +
-      '.info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }' +
-      '.info-table td { border: 1pt solid #000; padding: 6px; }' +
-      '.info-label { background-color: #d9e2f3 !important; font-weight: bold; width: 20%; }' +
-      '.data-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; text-align: center; border: 1pt solid #000; }' +
-      '.data-table th, .data-table td { border: 1pt solid #000; padding: 6px; vertical-align: middle; }' +
-      '.data-table th { background-color: #d9e2f3 !important; font-weight: bold; }' +
-      '.signature-table { width: 100%; border: none !important; margin: 0; padding: 0; text-align: left; }' +
-      '.signature-table td { border: none !important; padding: 1px; line-height: 1.2; font-size: 8.5px; }' +
-      '.pie-pagina { position: fixed; bottom: 20px; left: 40px; right: 40px; }' +
-      '.footer-table { width: 100%; border-top: 1.5pt solid #000 !important; padding-top: 10px; border-collapse: collapse; }' +
-      '.footer-table td { border: none; vertical-align: middle; }' +
+      '@page { size: A4; margin: 12mm 16mm; }' +
+      '* { box-sizing: border-box; }' +
+      'html, body {' +
+      '  margin: 0; padding: 0;' +
+      '  font-family: Georgia, "Times New Roman", serif;' +
+      '  color: #2e2e2e;' +
+      '  background: #ffffff;' +
+      '  -webkit-print-color-adjust: exact !important;' +
+      '  print-color-adjust: exact !important;' +
+      '}' +
+      ':root {' +
+      '  --principal: #1f3a5f;' +
+      '  --principal-oscuro: #132840;' +
+      '  --acento: #8a7530;' +
+      '  --gris-texto: #2e2e2e;' +
+      '  --gris-suave: #6b6b6b;' +
+      '  --linea: #dcdcdc;' +
+      '  --fondo-suave: #f7f8fa;' +
+      '}' +
+      '.watermark { position: fixed; top: 44%; left: 50%; width: 120mm; transform: translate(-50%, -50%); opacity: 0.05; z-index: 0; pointer-events: none; }' +
+      '.content { position: relative; z-index: 1; }' +
+      '.header { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8mm; padding-bottom: 5mm; border-bottom: 0.7pt solid var(--linea); text-align: center; }' +
+      '.header img.escudo { width: 19mm; height: auto; flex-shrink: 0; order: 1; }' +
+      '.header-text { text-align: center; order: 2; flex: 1; }' +
+      '.header-text .linea1 { font-size: 12.5pt; font-weight: bold; letter-spacing: 0.6pt; color: var(--principal-oscuro); text-transform: uppercase; line-height: 1.25; }' +
+      '.header-text .linea2 { font-size: 8.5pt; font-style: italic; color: var(--gris-suave); margin-top: 1.2mm; }' +
+      '.header-text .linea3 { font-size: 8.5pt; font-weight: bold; letter-spacing: 0.5pt; color: var(--principal-oscuro); text-transform: uppercase; margin-top: 1.8mm; padding-top: 1.8mm; border-top: 0.5pt solid var(--linea); display: inline-block; }' +
+      '.acta-code { text-align: center; font-size: 8pt; color: var(--gris-suave); line-height: 1.5; margin: 3mm 0 6mm 0; }' +
+      '.acta-code .num { font-size: 9.3pt; font-weight: bold; color: var(--principal); display: block; margin-bottom: 0.8mm; }' +
+      '.title-band { text-align: center; margin: 6mm 0 4mm 0; }' +
+      '.title-band h1 { display: inline-block; margin: 0; font-size: 19pt; letter-spacing: 2.5pt; color: var(--principal-oscuro); font-weight: bold; text-transform: uppercase; padding-bottom: 2mm; border-bottom: 1pt solid var(--acento); }' +
+      '.info-table { width: 100%; border-collapse: collapse; margin-bottom: 6mm; font-size: 9.8pt; }' +
+      '.info-table tr { border-bottom: 0.6pt solid var(--linea); }' +
+      '.info-table tr:last-child { border-bottom: none; }' +
+      '.info-table td { padding: 3mm; vertical-align: top; }' +
+      '.info-table td.label { width: 36mm; font-weight: bold; color: var(--principal); text-transform: uppercase; font-size: 8.3pt; letter-spacing: 0.3pt; }' +
+      '.info-table td.value { color: var(--gris-texto); }' +
+      '.section-title { font-size: 9.5pt; font-weight: bold; color: #ffffff; background: var(--principal); text-transform: uppercase; letter-spacing: 0.6pt; padding: 2.3mm 4mm; margin: 0 0 4mm 0; border-radius: 1.2pt; }' +
+      '.asistentes { width: 100%; border-collapse: collapse; margin-bottom: 7mm; font-size: 9.3pt; }' +
+      '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
+      '.asistentes td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: middle; }' +
+      '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
+      '.asistentes td.firma { text-align: center; width: 54mm; padding: 2px; }' +
+      '.asistentes td.firma .sello { display: inline-flex; align-items: center; gap: 1.8mm; font-size: 6.3pt; line-height: 1.55; color: #333333; text-align: left; white-space: nowrap; }' +
+      '.asistentes td.firma .sello img { width: 11mm; height: auto; flex-shrink: 0; }' +
+      '.asistentes td.firma .sello b { font-size: 6.7pt; color: #1a1a1a; }' +
+      '.asistentes td.firma img.firma-img { max-height: 40px; max-width: 100%; display: block; margin: auto; }' +
+      '.agenda-list { margin: 0 0 7mm 0; padding: 0; list-style: none; }' +
+      '.agenda-list li { display: flex; align-items: center; gap: 3mm; padding: 2.8mm 0; border-bottom: 0.5pt dashed var(--linea); font-size: 10pt; }' +
+      '.agenda-list li:last-child { border-bottom: none; }' +
+      '.agenda-list .idx { flex-shrink: 0; width: 6.5mm; height: 6.5mm; border-radius: 50%; background: var(--principal); color: #fff; font-size: 8.5pt; font-weight: bold; display: flex; align-items: center; justify-content: center; }' +
+      '.registro-table { width: 100%; border-collapse: collapse; margin-bottom: 7mm; font-size: 9.3pt; }' +
+      '.registro-table th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
+      '.registro-table td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: top; }' +
+      '.registro-table td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
+      '.anexo-titulo { text-align: center; font-size: 12pt; font-weight: bold; color: var(--principal-oscuro); text-transform: uppercase; letter-spacing: 0.5pt; border-bottom: 0.7pt solid var(--linea); padding-bottom: 3mm; margin: 0 0 6mm 0; }' +
+      '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.6pt solid var(--linea); padding: 5px; box-sizing: border-box; vertical-align: top; }' +
       '.page-break { page-break-before: always; }' +
-      '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.5pt solid #ccc; padding: 5px; box-sizing: border-box; }' +
+      '.footer { margin-top: 8mm; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; }' +
+      '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
+      '.footer .txt { flex: 1; }' +
+      '.footer .pag { flex-shrink: 0; border: 0.6pt solid var(--linea); padding: 1mm 3mm; font-size: 8pt; font-weight: bold; color: var(--principal); align-self: center; }' +
       '</style></head><body>' +
-      
-      // CABECERA INSTITUCIONAL (Escudo + Universidad + Oficina, centrado)
-      '<div class="institucional">' +
-      '<img src="' + LOGO_UNMSM + '" alt="Escudo UNMSM"/>' +
-      '<div class="uni-nombre">UNIVERSIDAD NACIONAL MAYOR DE SAN MARCOS</div>' +
-      '<div class="uni-sub">Universidad del Perú. Decana de América</div>' +
-      '<div class="uni-oficina">OFICINA GENERAL DE PLANIFICACIÓN</div>' +
-      '</div>' +
-      '<hr class="institucional-rule"/>' +
 
-      // CABECERA (Recuadro Acta N°, título y escudo)
-      '<table class="header-table"><tr>' +
-      '<td class="box-left">ACTA N°<br>' + numeroActa + '-' + anio + '-OR-<br>OGPL/UNMSM</td>' +
-      '<td class="box-title">ACTA DE REUNIÓN</td>' +
-      '<td class="box-logo"><img src="' + LOGO_UNMSM + '" alt="Escudo UNMSM"/></td>' +
-      '</tr></table>' +
-      
-      // DETALLES DE REUNIÓN (Info Section)
+      '<img class="watermark" src="' + LOGO_UNMSM + '" alt="">' +
+      '<div class="content">' +
+
+      // MEMBRETE (escudo + texto institucional)
+      '<div class="header">' +
+      '<img class="escudo" src="' + LOGO_UNMSM + '" alt="Escudo UNMSM">' +
+      '<div class="header-text">' +
+      '<div class="linea1">Universidad Nacional Mayor de San Marcos</div>' +
+      '<div class="linea2">Universidad del Perú. Decana de América</div>' +
+      '<div class="linea3">Oficina General de Planificación</div>' +
+      '</div>' +
+      '</div>' +
+
+      // TÍTULO + REFERENCIA DEL ACTA
+      '<div class="title-band"><h1>Acta de Reunión</h1></div>' +
+      '<div class="acta-code">' +
+      '<span class="num">N° ' + numeroActa + '-' + anio + '-OR-OGPL/UNMSM</span>' +
+      'Emisión: ' + fechaEmision +
+      '</div>' +
+
+      // DETALLES DE LA REUNIÓN
       '<table class="info-table">' +
-      '<tr><td class="info-label">Tema:</td><td>' + datos.tema + '</td></tr>' +
-      '<tr><td class="info-label">Modalidad:</td><td>' + datos.modalidad + '</td></tr>' +
-      '<tr><td class="info-label">Fecha:</td><td>' + datos.fecha + '</td></tr>' +
-      '<tr><td class="info-label">Lugar de reunión:</td><td>' + datos.lugar + '</td></tr>' +
-      '<tr><td class="info-label">Horario:</td><td>' + datos.horaInicio + ' - ' + datos.horaFin + '</td></tr>' +
+      '<tr><td class="label">Tema</td><td class="value">' + datos.tema + '</td></tr>' +
+      '<tr><td class="label">Modalidad</td><td class="value">' + datos.modalidad + '</td></tr>' +
+      '<tr><td class="label">Fecha</td><td class="value">' + datos.fecha + '</td></tr>' +
+      '<tr><td class="label">Lugar de reunión</td><td class="value">' + datos.lugar + '</td></tr>' +
+      '<tr><td class="label">Horario</td><td class="value">' + datos.horaInicio + ' &ndash; ' + datos.horaFin + '</td></tr>' +
       '</table>' +
-      
-      // ASISTENTES (Data Table)
-      '<table class="data-table">' +
-      '<thead><tr>' +
-      '<th style="width: 5%;">N°</th>' +
-      '<th style="width: 35%;">Nombre Y Apellidos</th>' +
-      '<th style="width: 25%;">Cargo / Unidad</th>' +
-      '<th style="width: 35%;">Firma</th>' +
-      '</tr></thead><tbody>';
+
+      // PARTICIPANTES
+      '<div class="section-title">Participantes</div>' +
+      '<table class="asistentes">' +
+      '<tr>' +
+      '<th style="width:8mm;">N°</th>' +
+      '<th>Nombre y apellidos</th>' +
+      '<th style="width:30mm;">Cargo / Unidad</th>' +
+      '<th style="width:54mm;">Firma</th>' +
+      '</tr>';
     
     datos.asistentes.forEach(function(asis, index) {
       var firmaContent = '';
@@ -319,82 +353,84 @@ function generarActaPDF(datos, token) {
         var nombresCap = asis.nombres.split(' ').map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }).join(' ');
         var fechaStr = Utilities.formatDate(now, Session.getScriptTimeZone(), 'dd/MM/yy');
         var horaStr = Utilities.formatDate(now, Session.getScriptTimeZone(), 'HH:mm:ss');
-        
-        firmaContent = '<table class="signature-table"><tr>' +
-                       '<td style="width:25%; text-align:center;">' +
-                       '<img src="' + LOGO_UNMSM + '" style="max-height:35px;"/></td>' +
-                       '<td style="width:75%; color:#222;">' +
-                       'Firmado digitalmente por <br><b>' + apellidosMayus + ' ' + nombresCap + '</b><br>' +
+
+        firmaContent = '<span class="sello">' +
+                       '<img src="' + LOGO_UNMSM + '" alt="">' +
+                       '<span>' +
+                       'Firmado digitalmente por<br>' +
+                       '<b>' + apellidosMayus + ' ' + nombresCap + '</b><br>' +
                        'Motivo: Soy el Autor de la Firma<br>' +
                        'Fecha: ' + fechaStr + ' Hora: ' + horaStr +
-                       '</td></tr></table>';
+                       '</span></span>';
       } else if (asis.firma) {
-        firmaContent = '<img src="' + asis.firma + '" style="max-height: 40px; max-width: 100%; display: block; margin: auto;"/>';
+        firmaContent = '<img class="firma-img" src="' + asis.firma + '" alt="Firma"/>';
       }
 
       htmlStr += '<tr>' +
-        '<td>' + (index + 1) + '</td>' +
-        '<td style="text-align: left;">' + asis.nombres + ' ' + asis.apellidos + '</td>' +
-        '<td>' + asis.cargo + '<br><small>' + asis.unidad + '</small></td>' +
-        '<td style="padding: 2px;">' + firmaContent + '</td></tr>';
+        '<td class="n">' + (index + 1) + '</td>' +
+        '<td>' + asis.nombres + ' ' + asis.apellidos + '</td>' +
+        '<td style="text-align:center;">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
+        '<td class="firma">' + firmaContent + '</td></tr>';
     });
-    htmlStr += '</tbody></table>';
-      
+    htmlStr += '</table>';
+
     // AGENDA
-    htmlStr += '<table class="agenda-table">' +
-      '<tr><td class="agenda-header">Agenda a tratar:</td></tr>' +
-      '<tr><td><ol>' +
-      (datos.agenda.length > 0 ? datos.agenda.map(function(item) { return '<li>' + item + '</li>'; }).join('') : '<li>---</li>') +
-      '</ol></td></tr>' +
-      '</table>';
-      
+    htmlStr += '<div class="section-title">Agenda tratada</div>' +
+      '<ul class="agenda-list">' +
+      (datos.agenda.length > 0 ?
+        datos.agenda.map(function(item, idx) { return '<li><span class="idx">' + (idx + 1) + '</span><span>' + item + '</span></li>'; }).join('') :
+        '<li><span class="idx">1</span><span>&mdash;</span></li>') +
+      '</ul>';
+
     // ACUERDOS (SIN PLAZO)
     if (datos.acuerdos.length > 0) {
-      htmlStr += '<table class="data-table">' +
-        '<thead><tr>' +
-        '<th style="width: 5%;">N°</th>' +
-        '<th style="width: 65%;">Acuerdo</th>' +
-        '<th style="width: 30%;">Responsable</th>' +
-        '</tr></thead><tbody>';
+      htmlStr += '<div class="section-title">Acuerdos</div>' +
+        '<table class="registro-table">' +
+        '<tr>' +
+        '<th style="width:8mm;">N°</th>' +
+        '<th>Acuerdo</th>' +
+        '<th style="width:40mm;">Responsable</th>' +
+        '</tr>';
       datos.acuerdos.forEach(function(ac, idx) {
         htmlStr += '<tr>' +
-          '<td>' + (idx + 1) + '</td>' +
-          '<td style="text-align: left;">' + ac.texto + '</td>' +
+          '<td class="n">' + (idx + 1) + '</td>' +
+          '<td>' + ac.texto + '</td>' +
           '<td>' + ac.responsable + '</td>' +
           '</tr>';
       });
-      htmlStr += '</tbody></table>';
+      htmlStr += '</table>';
     }
 
     // COMPROMISOS (CON PLAZO)
     if (datos.compromisos.length > 0) {
-      htmlStr += '<table class="data-table">' +
-        '<thead><tr>' +
-        '<th style="width: 5%;">N°</th>' +
-        '<th style="width: 45%;">Compromiso</th>' +
-        '<th style="width: 20%;">Responsable</th>' +
-        '<th style="width: 15%;">Plazo</th>' +
-        '<th style="width: 15%;">Fecha Límite</th>' +
-        '</tr></thead><tbody>';
-      
+      htmlStr += '<div class="section-title">Compromisos</div>' +
+        '<table class="registro-table">' +
+        '<tr>' +
+        '<th style="width:8mm;">N°</th>' +
+        '<th>Compromiso</th>' +
+        '<th style="width:32mm;">Responsable</th>' +
+        '<th style="width:22mm;">Plazo</th>' +
+        '<th style="width:30mm;">Fecha límite</th>' +
+        '</tr>';
+
       datos.compromisos.forEach(function(co, idx) {
         var fLimite = calcularFechaLimite(now, co.plazo, co.unidad);
         var fStr = Utilities.formatDate(fLimite, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
         htmlStr += '<tr>' +
-          '<td>' + (idx + 1) + '</td>' +
-          '<td style="text-align: left;">' + co.texto + '</td>' +
+          '<td class="n">' + (idx + 1) + '</td>' +
+          '<td>' + co.texto + '</td>' +
           '<td>' + co.responsable + '</td>' +
           '<td>' + co.plazo + ' ' + co.unidad + '</td>' +
           '<td>' + fStr + '</td>' +
           '</tr>';
       });
-      htmlStr += '</tbody></table>';
+      htmlStr += '</table>';
     }
-    
+
     // EVIDENCIAS FOTOGRÁFICAS
     if (datos.fotos && datos.fotos.length > 0) {
       htmlStr += '<div class="page-break"></div>' +
-        '<h3 style="text-align: center; border-bottom: 1pt solid #000; padding-bottom: 5px;">ANEXO FOTOGRÁFICO DE LA REUNIÓN</h3>' +
+        '<div class="anexo-titulo">Anexo fotográfico de la reunión</div>' +
         '<div style="width: 100%;">';
       datos.fotos.forEach(function(foto, idx) {
         htmlStr += '<div class="foto-container">' +
@@ -405,18 +441,18 @@ function generarActaPDF(datos, token) {
       htmlStr += '</div>';
     }
     
-    // PIE DE PÁGINA (Con QR dinámico y número de página manual) — fijo al fondo de la hoja
-    htmlStr += '<div class="pie-pagina"><table class="footer-table"><tr>' +
-      '<td style="width: 15%; text-align: left;">' +
-      '<img src="' + qrUrl + '" style="max-height: 70px;" alt="QR Code"/></td>' +
-      '<td style="width: 70%; text-align: justify; font-size: 9.5px; padding: 0 15px; color: #222;">' +
-      'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). ' +
-      'Este documento es original y tiene validez conforme a la normativa vigente. Oficina de ' +
-      'Racionalización / Oficina General de Planificación- UNMSM. Fecha de emisión: ' + fechaEmision + '.' +
-      '</td>' +
-      '<td style="width: 15%; text-align: right; vertical-align: bottom; font-size: 11px; font-weight: bold;">' +
-      '<span style="border: 1pt solid #000; padding: 3px 10px; display: inline-block;">Pág. 1</span></td>' +
-      '</tr></table></div></body></html>';
+    // PIE DE PÁGINA (Con QR dinámico)
+    htmlStr += '<div class="footer">' +
+      '<img class="qr" src="' + qrUrl + '" alt="Código QR de verificación">' +
+      '<div class="txt">' +
+      'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). Este documento es ' +
+      'original y tiene validez conforme a la normativa vigente.<br>' +
+      'Oficina de Racionalización / Oficina General de Planificación &ndash; UNMSM. Fecha de emisión: ' + fechaEmision + '.' +
+      '</div>' +
+      '<div class="pag">Pág. 1</div>' +
+      '</div>' +
+
+      '</div></body></html>';
     
     var blob = HtmlService.createHtmlOutput(htmlStr).getAs(MimeType.PDF);
     blob.setName(idActaSolo + ' - ' + datos.tema + '.pdf'); 
