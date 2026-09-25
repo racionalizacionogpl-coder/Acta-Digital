@@ -117,7 +117,7 @@ function inicializarSistema() {
   var hojasRequeridas = [
     { nombre: 'Usuarios', headers: ['Email','PasswordHash','Nombre','Rol','UnidadOficina','FechaRegistro'] },
     { nombre: 'Actas',    headers: ['ID_Acta','Tema','Modalidad','Lugar','Fecha','HoraInicio','HoraFin','URL_PDF','RegistradoPor','Timestamp','CantidadAsistentes','CantidadFotos','Agenda'] },
-    { nombre: 'Asistentes', headers: ['ID_Acta','Nombres','Apellidos','Cargo','Unidad','TieneFirma','Timestamp'] },
+    { nombre: 'Asistentes', headers: ['ID_Acta','Nombres','Apellidos','Cargo','Unidad','TieneFirma','Timestamp','Celular','Correo'] },
     { nombre: 'Acuerdos', headers: ['ID_Acuerdo','ID_Acta','Acuerdo','Responsable','Plazo','UnidadPlazo','FechaLimite','Estado','FechaCumplimiento','DiasRestantes','Indicador','Timestamp'] }
   ];
   
@@ -275,6 +275,7 @@ function construirHtmlActa(datos, ctx) {
     '.asistentes { width: 100%; border-collapse: collapse; margin-bottom: 7mm; font-size: 9.3pt; }' +
     '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
     '.asistentes td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: middle; }' +
+    '.asistentes td.contacto { font-size: 7.6pt; color: var(--gris-suave); word-break: break-all; }' +
     '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
     '.asistentes td.firma { text-align: center; width: 54mm; padding: 2px; }' +
     '.asistentes td.firma .sello { display: inline-flex; align-items: center; gap: 1.8mm; font-size: 6.3pt; line-height: 1.55; color: #333333; text-align: left; white-space: nowrap; }' +
@@ -334,6 +335,7 @@ function construirHtmlActa(datos, ctx) {
     '<th style="width:8mm;">N°</th>' +
     '<th>Nombre y apellidos</th>' +
     '<th style="width:30mm;">Cargo / Unidad</th>' +
+    '<th style="width:36mm;">Contacto</th>' +
     '<th style="width:54mm;">Firma</th>' +
     '</tr>';
   
@@ -361,6 +363,7 @@ function construirHtmlActa(datos, ctx) {
       '<td class="n">' + (index + 1) + '</td>' +
       '<td>' + asis.nombres + ' ' + asis.apellidos + '</td>' +
       '<td style="text-align:center;">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
+      '<td class="contacto">' + (asis.celular || '') + (asis.celular && asis.correo ? '<br>' : '') + (asis.correo || '') + '</td>' +
       '<td class="firma">' + firmaContent + '</td></tr>';
   });
   htmlStr += '</table>';
@@ -522,8 +525,13 @@ function guardarActaEnBD(idActa, datos, urlPDF, email) {
   
   // 2. Guardar en la hoja Asistentes
   var sheetAsist = ss.getSheetByName('Asistentes');
+  // Las columnas Celular (8) y Correo (9) se agregaron después: se crean los encabezados si faltan
+  if (sheetAsist.getRange(1, 8).getValue() === '') sheetAsist.getRange(1, 8).setValue('Celular');
+  if (sheetAsist.getRange(1, 9).getValue() === '') sheetAsist.getRange(1, 9).setValue('Correo');
   datos.asistentes.forEach(function(a) {
-    sheetAsist.appendRow([idActa, a.nombres, a.apellidos, a.cargo, a.unidad, a.firma || a.usarFirmaDigital ? 'Sí' : 'No', now]);
+    // El apóstrofo evita que Sheets convierta el celular en número
+    sheetAsist.appendRow([idActa, a.nombres, a.apellidos, a.cargo, a.unidad, a.firma || a.usarFirmaDigital ? 'Sí' : 'No', now,
+      a.celular ? "'" + a.celular : '', a.correo || '']);
   });
   
   // 3. Guardar Acuerdos y Compromisos en la hoja Acuerdos
@@ -825,6 +833,8 @@ function obtenerHistorialAsistentes() {
       var apellido = String(data[i][2] || '').trim();
       var cargo    = String(data[i][3] || '').trim();
       var unidad   = String(data[i][4] || '').trim();
+      var celular  = String(data[i][7] || '').trim();
+      var correo   = String(data[i][8] || '').trim();
 
       if (!nombre) continue;
 
@@ -832,11 +842,13 @@ function obtenerHistorialAsistentes() {
       var clave = (nombre + '|' + apellido).toLowerCase();
       if (vistos[clave] === undefined) {
         vistos[clave] = asistentes.length;
-        asistentes.push({ nombre: nombre, apellido: apellido, cargo: cargo, unidad: unidad });
+        asistentes.push({ nombre: nombre, apellido: apellido, cargo: cargo, unidad: unidad, celular: celular, correo: correo });
       } else {
         var prev = asistentes[vistos[clave]];
         if (cargo)  prev.cargo  = cargo;
         if (unidad) prev.unidad = unidad;
+        if (celular) prev.celular = celular;
+        if (correo) prev.correo = correo;
       }
 
       if (apellido) setApellidos[apellido] = true;

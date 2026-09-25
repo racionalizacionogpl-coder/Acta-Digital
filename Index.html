@@ -345,6 +345,17 @@
         </div>
       </div>
 
+      <div class="row">
+        <div class="col form-group">
+          <label>Celular</label>
+          <input type="tel" id="asis-celular" placeholder="Ej. 987654321" autocomplete="off" inputmode="tel">
+        </div>
+        <div class="col form-group">
+          <label>Correo electrónico</label>
+          <input type="email" id="asis-correo" placeholder="usuario@unmsm.edu.pe" autocomplete="off">
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Firma Digital <span style="font-weight:normal; color:#718096;">(Dibuja con mouse o dedo, <b>O sube una imagen</b>)</span></label>
         <div class="signature-wrapper">
@@ -827,54 +838,54 @@
   }
 // ================= DIRECTORIO DE PERSONAL DE FACULTADES (incrustado) =================
   var PERSONAL_FACULTADES = [
-    {"nombres": "Ricardo David", "apellidos": "Torres Agurto", "cargo": "Jefe", "unidad": "UPPR - FCA", "facultad": "FACULTAD DE CIENCIAS ADMINISTRATIVAS"},
-    {"nombres": "Elizabeth Lucero", "apellidos": "Huamancha Avila", "cargo": "Asistente", "unidad": "UPPR - FCA", "facultad": "FACULTAD DE CIENCIAS ADMINISTRATIVAS"},
-    {"nombres": "Lianne Antuannete", "apellidos": "Segovia Sanoni", "cargo": "Jefa", "unidad": "UPPR - FIEE", "facultad": "FACULTAD DE INGENIERÍA ELÉCTRICA Y ELECTRÓNICA"},
-    {"nombres": "Maricielo", "apellidos": "Cristobal Campos", "cargo": "Bolsista", "unidad": "UPPR - FIEE", "facultad": "FACULTAD DE INGENIERÍA ELÉCTRICA Y ELECTRÓNICA"},
-    {"nombres": "Rosa", "apellidos": "Coaila Moreno", "cargo": "Jefa", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA"},
-    {"nombres": "Juliette", "apellidos": "Galvez Yupanqui", "cargo": "Bolsista", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA"},
-    {"nombres": "Leomar Nicolas", "apellidos": "Bonzano Chavez", "cargo": "Bolsista", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA"},
-    {"nombres": "Maria Elizabeth", "apellidos": "Angeles Paredes", "cargo": "Jefa", "unidad": "UPPR - FQIQ", "facultad": "FACULTAD DE QUÍMICA E INGENIERÍA QUÍMICA"},
-    {"nombres": "Jorge", "apellidos": "Palomino", "cargo": "Asistente", "unidad": "UPPR - FQIQ", "facultad": "FACULTAD DE QUÍMICA E INGENIERÍA QUÍMICA"},
-    {"nombres": "Maritza", "apellidos": "Melchor Salas", "cargo": "Jefa - UPPR", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA"},
-    {"nombres": "Loreley Yesel Audrey", "apellidos": "Rojas Berrios", "cargo": "Bolsista", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA"},
-    {"nombres": "Salvador Stalin", "apellidos": "Aymara Vilca", "cargo": "Bolsista", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA"},
-    {"nombres": "Mirtha", "apellidos": "Ponce Suarez", "cargo": "Jefa - UPPR", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS"},
-    {"nombres": "Yna Levy", "apellidos": "Cristobal Espinoza", "cargo": "Especialista - UPPR", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS"},
-    {"nombres": "Renzo", "apellidos": "Romero Ochoa", "cargo": "Bolsista", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS"},
-    {"nombres": "Armando", "apellidos": "Cadenillas Lopez", "cargo": "Jefe UPPR", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS"},
-    {"nombres": "María Esther", "apellidos": "Torres Almeyda", "cargo": "Técnico - UPPR", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS"},
-    {"nombres": "Kiara Antuaneth", "apellidos": "Zavalaga Chumbes", "cargo": "Apoyo tecnico", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS"},
-    {"nombres": "Zinnia", "apellidos": "Gomero Rodriguez", "cargo": "Asistente - UPPR", "unidad": "UPPR - FCC", "facultad": "FACULTAD DE CIENCIAS CONTABLES"},
-    {"nombres": "Oscar", "apellidos": "Evangelista Fundes", "cargo": "Asistente - UPPR", "unidad": "UPPR - FCC", "facultad": "FACULTAD DE CIENCIAS CONTABLES"},
-    {"nombres": "Enver", "apellidos": "León Gonzales", "cargo": "Jefe UPPR", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
-    {"nombres": "Carmen Gladys", "apellidos": "Peña Suasnabar", "cargo": "Jefe OCAA", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
-    {"nombres": "María Eugenia", "apellidos": "Chukiwanka", "cargo": "Secretaria - OCAA", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
-    {"nombres": "Fidel Gregorio", "apellidos": "Fretel Martínez", "cargo": "Director Administrativo", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
-    {"nombres": "Siever Miguel", "apellidos": "Morales Cauti", "cargo": "Jefe OCAA", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA"},
-    {"nombres": "Miluska", "apellidos": "Garcés Grauz", "cargo": "Jefa - UPPR", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA"},
-    {"nombres": "Andrés", "apellidos": "Cáceres Tapia", "cargo": "Asistente - UPPR", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA"},
-    {"nombres": "Diana Luz", "apellidos": "Beraun Mora", "cargo": "Jefa - UPPR", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS"},
-    {"nombres": "Marcela Marisol", "apellidos": "Ventura Castillo", "cargo": "Bolsista", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS"},
-    {"nombres": "Anthony Tyaro", "apellidos": "Silva Maciel", "cargo": "Bolsista", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS"},
-    {"nombres": "Herbert", "apellidos": "Orbegozo Perez", "cargo": "UPPR - Jefe", "unidad": "UPPR - FO", "facultad": "FACULTAD DE ODONTOLOGÍA"},
-    {"nombres": "Luis Ángel", "apellidos": "Ontón Fuentes", "cargo": "Asistente - UPPR", "unidad": "UPPR - FO", "facultad": "FACULTAD DE ODONTOLOGÍA"},
-    {"nombres": "Hugo", "apellidos": "Sanchez Diaz", "cargo": "Jefe OCAA", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS"},
-    {"nombres": "Richar Giomar", "apellidos": "Alarcon Carrazco", "cargo": "Bolsista", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS"},
-    {"nombres": "Renato", "apellidos": "Espinoza Castillo", "cargo": "Bolsista", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS"},
-    {"nombres": "Ciro Sergio", "apellidos": "Bedia Guillen", "cargo": "Jefa OCAA", "unidad": "OCAA - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA"},
-    {"nombres": "Jenny Haydee", "apellidos": "Curro Alá", "cargo": "UPPR - Jefe", "unidad": "UPPR - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA"},
-    {"nombres": "Janet", "apellidos": "Aramburú Palomino", "cargo": "Asistente - OCAA", "unidad": "OCAA - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA"},
-    {"nombres": "Yuri Massiel", "apellidos": "Vivanco Ciprian", "cargo": "Jefe UPPR", "unidad": "UPPR - FII", "facultad": "FACULTAD DE INGENIERÍA INDUSTRIAL"},
-    {"nombres": "Deysi", "apellidos": "Ledezma Santos", "cargo": "Asistente", "unidad": "UPPR - FII", "facultad": "FACULTAD DE INGENIERÍA INDUSTRIAL"},
-    {"nombres": "Erick Andres", "apellidos": "Farias Pena", "cargo": "UPPR", "unidad": "UPPR - FCS", "facultad": "FACULTAD DE CIENCIAS SOCIALES"},
-    {"nombres": "Luis", "apellidos": "De La Cruz", "cargo": "UPPR", "unidad": "UPPR - FCS", "facultad": "FACULTAD DE CIENCIAS SOCIALES"},
-    {"nombres": "Lidia Anita", "apellidos": "Pacco Loaiza", "cargo": "Coordinadora - UPPR", "unidad": "UPPR - FCF", "facultad": "FACULTAD DE CIENCIAS FÍSICAS"},
-    {"nombres": "Rodolfo", "apellidos": "Huisa Cornejo", "cargo": "Director Administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA"},
-    {"nombres": "Helena Virginia", "apellidos": "Cuya García", "cargo": "Apoyo administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA"},
-    {"nombres": "Melissa Yessenia", "apellidos": "Quinto Quinto", "cargo": "Apoyo administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA"},
-    {"nombres": "Oscar", "apellidos": "Gomez Carreño", "cargo": "Jefe UPPR", "unidad": "UPPR - FE", "facultad": "FACULTAD DE EDUCACIÓN"},
-    {"nombres": "Karina", "apellidos": "Guerrero Villavicensio", "cargo": "Personal técnico", "unidad": "UPPR - FE", "facultad": "FACULTAD DE EDUCACIÓN"}
+    {"nombres": "Ricardo David", "apellidos": "Torres Agurto", "cargo": "Jefe", "unidad": "UPPR - FCA", "facultad": "FACULTAD DE CIENCIAS ADMINISTRATIVAS", "celular": "998598545", "correo": ""},
+    {"nombres": "Elizabeth Lucero", "apellidos": "Huamancha Avila", "cargo": "Asistente", "unidad": "UPPR - FCA", "facultad": "FACULTAD DE CIENCIAS ADMINISTRATIVAS", "celular": "958988241", "correo": ""},
+    {"nombres": "Lianne Antuannete", "apellidos": "Segovia Sanoni", "cargo": "Jefa", "unidad": "UPPR - FIEE", "facultad": "FACULTAD DE INGENIERÍA ELÉCTRICA Y ELECTRÓNICA", "celular": "", "correo": ""},
+    {"nombres": "Maricielo", "apellidos": "Cristobal Campos", "cargo": "Bolsista", "unidad": "UPPR - FIEE", "facultad": "FACULTAD DE INGENIERÍA ELÉCTRICA Y ELECTRÓNICA", "celular": "935748756", "correo": ""},
+    {"nombres": "Rosa", "apellidos": "Coaila Moreno", "cargo": "Jefa", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA", "celular": "", "correo": ""},
+    {"nombres": "Juliette", "apellidos": "Galvez Yupanqui", "cargo": "Bolsista", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA", "celular": "966595194", "correo": ""},
+    {"nombres": "Leomar Nicolas", "apellidos": "Bonzano Chavez", "cargo": "Bolsista", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA", "celular": "916564436", "correo": ""},
+    {"nombres": "Maria Elizabeth", "apellidos": "Angeles Paredes", "cargo": "Jefa", "unidad": "UPPR - FQIQ", "facultad": "FACULTAD DE QUÍMICA E INGENIERÍA QUÍMICA", "celular": "953664126", "correo": ""},
+    {"nombres": "Jorge", "apellidos": "Palomino", "cargo": "Asistente", "unidad": "UPPR - FQIQ", "facultad": "FACULTAD DE QUÍMICA E INGENIERÍA QUÍMICA", "celular": "961849590", "correo": ""},
+    {"nombres": "Maritza", "apellidos": "Melchor Salas", "cargo": "Jefa - UPPR", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA", "celular": "", "correo": ""},
+    {"nombres": "Loreley Yesel Audrey", "apellidos": "Rojas Berrios", "cargo": "Bolsista", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA", "celular": "", "correo": ""},
+    {"nombres": "Salvador Stalin", "apellidos": "Aymara Vilca", "cargo": "Bolsista", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA", "celular": "", "correo": ""},
+    {"nombres": "Mirtha", "apellidos": "Ponce Suarez", "cargo": "Jefa - UPPR", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS", "celular": "", "correo": ""},
+    {"nombres": "Yna Levy", "apellidos": "Cristobal Espinoza", "cargo": "Especialista - UPPR", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS", "celular": "", "correo": ""},
+    {"nombres": "Renzo", "apellidos": "Romero Ochoa", "cargo": "Bolsista", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS", "celular": "", "correo": ""},
+    {"nombres": "Armando", "apellidos": "Cadenillas Lopez", "cargo": "Jefe UPPR", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS", "celular": "", "correo": ""},
+    {"nombres": "María Esther", "apellidos": "Torres Almeyda", "cargo": "Técnico - UPPR", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS", "celular": "", "correo": ""},
+    {"nombres": "Kiara Antuaneth", "apellidos": "Zavalaga Chumbes", "cargo": "Apoyo tecnico", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS", "celular": "", "correo": ""},
+    {"nombres": "Zinnia", "apellidos": "Gomero Rodriguez", "cargo": "Asistente - UPPR", "unidad": "UPPR - FCC", "facultad": "FACULTAD DE CIENCIAS CONTABLES", "celular": "", "correo": ""},
+    {"nombres": "Oscar", "apellidos": "Evangelista Fundes", "cargo": "Asistente - UPPR", "unidad": "UPPR - FCC", "facultad": "FACULTAD DE CIENCIAS CONTABLES", "celular": "", "correo": ""},
+    {"nombres": "Enver", "apellidos": "León Gonzales", "cargo": "Jefe UPPR", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA", "celular": "", "correo": ""},
+    {"nombres": "Carmen Gladys", "apellidos": "Peña Suasnabar", "cargo": "Jefe OCAA", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA", "celular": "", "correo": ""},
+    {"nombres": "María Eugenia", "apellidos": "Chukiwanka", "cargo": "Secretaria - OCAA", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA", "celular": "", "correo": ""},
+    {"nombres": "Fidel Gregorio", "apellidos": "Fretel Martínez", "cargo": "Director Administrativo", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA", "celular": "", "correo": ""},
+    {"nombres": "Siever Miguel", "apellidos": "Morales Cauti", "cargo": "Jefe OCAA", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA", "celular": "", "correo": ""},
+    {"nombres": "Miluska", "apellidos": "Garcés Grauz", "cargo": "Jefa - UPPR", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA", "celular": "", "correo": ""},
+    {"nombres": "Andrés", "apellidos": "Cáceres Tapia", "cargo": "Asistente - UPPR", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA", "celular": "", "correo": ""},
+    {"nombres": "Diana Luz", "apellidos": "Beraun Mora", "cargo": "Jefa - UPPR", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS", "celular": "", "correo": ""},
+    {"nombres": "Marcela Marisol", "apellidos": "Ventura Castillo", "cargo": "Bolsista", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS", "celular": "", "correo": ""},
+    {"nombres": "Anthony Tyaro", "apellidos": "Silva Maciel", "cargo": "Bolsista", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS", "celular": "", "correo": ""},
+    {"nombres": "Herbert", "apellidos": "Orbegozo Perez", "cargo": "UPPR - Jefe", "unidad": "UPPR - FO", "facultad": "FACULTAD DE ODONTOLOGÍA", "celular": "", "correo": ""},
+    {"nombres": "Luis Ángel", "apellidos": "Ontón Fuentes", "cargo": "Asistente - UPPR", "unidad": "UPPR - FO", "facultad": "FACULTAD DE ODONTOLOGÍA", "celular": "", "correo": ""},
+    {"nombres": "Hugo", "apellidos": "Sanchez Diaz", "cargo": "Jefe OCAA", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS", "celular": "", "correo": ""},
+    {"nombres": "Richar Giomar", "apellidos": "Alarcon Carrazco", "cargo": "Bolsista", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS", "celular": "", "correo": ""},
+    {"nombres": "Renato", "apellidos": "Espinoza Castillo", "cargo": "Bolsista", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS", "celular": "", "correo": ""},
+    {"nombres": "Ciro Sergio", "apellidos": "Bedia Guillen", "cargo": "Jefa OCAA", "unidad": "OCAA - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA", "celular": "", "correo": ""},
+    {"nombres": "Jenny Haydee", "apellidos": "Curro Alá", "cargo": "UPPR - Jefe", "unidad": "UPPR - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA", "celular": "", "correo": ""},
+    {"nombres": "Janet", "apellidos": "Aramburú Palomino", "cargo": "Asistente - OCAA", "unidad": "OCAA - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA", "celular": "", "correo": ""},
+    {"nombres": "Yuri Massiel", "apellidos": "Vivanco Ciprian", "cargo": "Jefe UPPR", "unidad": "UPPR - FII", "facultad": "FACULTAD DE INGENIERÍA INDUSTRIAL", "celular": "", "correo": ""},
+    {"nombres": "Deysi", "apellidos": "Ledezma Santos", "cargo": "Asistente", "unidad": "UPPR - FII", "facultad": "FACULTAD DE INGENIERÍA INDUSTRIAL", "celular": "", "correo": ""},
+    {"nombres": "Erick Andres", "apellidos": "Farias Pena", "cargo": "UPPR", "unidad": "UPPR - FCS", "facultad": "FACULTAD DE CIENCIAS SOCIALES", "celular": "", "correo": ""},
+    {"nombres": "Luis", "apellidos": "De La Cruz", "cargo": "UPPR", "unidad": "UPPR - FCS", "facultad": "FACULTAD DE CIENCIAS SOCIALES", "celular": "", "correo": ""},
+    {"nombres": "Lidia Anita", "apellidos": "Pacco Loaiza", "cargo": "Coordinadora - UPPR", "unidad": "UPPR - FCF", "facultad": "FACULTAD DE CIENCIAS FÍSICAS", "celular": "", "correo": ""},
+    {"nombres": "Rodolfo", "apellidos": "Huisa Cornejo", "cargo": "Director Administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA", "celular": "", "correo": ""},
+    {"nombres": "Helena Virginia", "apellidos": "Cuya García", "cargo": "Apoyo administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA", "celular": "", "correo": ""},
+    {"nombres": "Melissa Yessenia", "apellidos": "Quinto Quinto", "cargo": "Apoyo administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA", "celular": "", "correo": ""},
+    {"nombres": "Oscar", "apellidos": "Gomez Carreño", "cargo": "Jefe UPPR", "unidad": "UPPR - FE", "facultad": "FACULTAD DE EDUCACIÓN", "celular": "", "correo": ""},
+    {"nombres": "Karina", "apellidos": "Guerrero Villavicensio", "cargo": "Personal técnico", "unidad": "UPPR - FE", "facultad": "FACULTAD DE EDUCACIÓN", "celular": "", "correo": ""}
   ];
 
   function nombreCompleto(p) { return p.nombres + ' ' + p.apellidos; }
@@ -899,13 +910,14 @@
     if (!valor) return;
     var p = PERSONAL_FACULTADES.find(function(x) { return normalizar(nombreCompleto(x)) === valor; });
     if (!p) return;
-    completarAsistente(p.nombres, p.apellidos, p.cargo, p.unidad, true);
+    completarAsistente(p.nombres, p.apellidos, p.cargo, p.unidad, true, p.celular, p.correo);
     document.getElementById('buscar-persona').value = '';
     programarVistaPrevia();
   }
 
-  function completarAsistente(nombres, apellidos, cargo, unidad, sobrescribir) {
-    var campos = { 'asis-nombres': nombres, 'asis-apellidos': apellidos, 'asis-cargo': cargo, 'asis-unidad': unidad };
+  function completarAsistente(nombres, apellidos, cargo, unidad, sobrescribir, celular, correo) {
+    var campos = { 'asis-nombres': nombres, 'asis-apellidos': apellidos, 'asis-cargo': cargo, 'asis-unidad': unidad,
+                   'asis-celular': celular, 'asis-correo': correo };
     Object.keys(campos).forEach(function(id) {
       var el = document.getElementById(id);
       if (sobrescribir || !el.value) el.value = campos[id] || '';
@@ -977,12 +989,12 @@
     });
     if (persona.length === 1) {
       var p = persona[0];
-      completarAsistente(p.nombres, p.apellidos, p.cargo, p.unidad, true);
+      completarAsistente(p.nombres, p.apellidos, p.cargo, p.unidad, true, p.celular, p.correo);
       return;
     }
 
     var match = historialGlobal.find(function(a) { return normalizar(a.nombre) === inputNombre; });
-    if (match) completarAsistente(match.nombre, match.apellido, match.cargo, match.unidad, false);
+    if (match) completarAsistente(match.nombre, match.apellido, match.cargo, match.unidad, false, match.celular, match.correo);
   }
   // ================= FIRMA DIGITAL =================
   function handleFirmaFile(input) {
@@ -1104,6 +1116,8 @@
       apellidos: apellidos,
       cargo: document.getElementById('asis-cargo').value,
       unidad: document.getElementById('asis-unidad').value,
+      celular: document.getElementById('asis-celular').value.trim(),
+      correo: document.getElementById('asis-correo').value.trim(),
       firma: firmaFinal,
       usarFirmaDigital: usarFirmaDigital // <-- Se envía la instrucción al backend
     };
@@ -1119,6 +1133,8 @@
     document.getElementById('asis-apellidos').value = '';
     document.getElementById('asis-cargo').value = '';
     document.getElementById('asis-unidad').value = '';
+    document.getElementById('asis-celular').value = '';
+    document.getElementById('asis-correo').value = '';
     clearSignature();
     
     // NUEVO: Limpiamos también el botón de subir archivo
@@ -1135,7 +1151,8 @@
       var module = document.createElement('div');
       module.className = 'participant-module';
       module.innerHTML = '<span><strong>' + asis.nombres + ' ' + asis.apellidos + '</strong><br>' +
-                          '<small>' + asis.cargo + ' - ' + asis.unidad + '</small></span>' +
+                          '<small>' + asis.cargo + ' - ' + asis.unidad +
+                          (asis.celular ? ' · 📱 ' + asis.celular : '') + (asis.correo ? ' · ✉️ ' + asis.correo : '') + '</small></span>' +
                           '<button class="btn-danger" style="padding: 5px 10px;" onclick="eliminarAsistente(' + index + ')">Eliminar</button>';
       list.appendChild(module);
     });
