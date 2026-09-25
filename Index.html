@@ -175,6 +175,10 @@
                                 .dsh-clasif { width: auto; border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 12px; } }
   </style>
   <style>
+    .buscador-personal { background: #eef4fd; border: 1px solid #bfd6fb; border-radius: 8px; padding: 12px 14px; }
+    .buscador-personal label { color: #10233f; }
+    .buscador-personal input { background: #fff; }
+    .buscador-personal small { display: block; margin-top: 6px; color: #536980; font-size: 0.8em; }
     /* ================= FORMULARIO + VISTA PREVIA DEL PDF ================= */
     .container.con-vista { max-width: 1480px; }
     .acta-layout { display: flex; gap: 28px; align-items: flex-start; }
@@ -300,6 +304,15 @@
 
       <h3>Registro de Asistente</h3>  
       <div id="alert">✅ Asistente registrado. Formulario listo para el siguiente.</div>
+
+      <div class="form-group buscador-personal">
+        <label>🔎 Buscar persona del directorio de facultades</label>
+        <input type="text" id="buscar-persona" list="lista-personal" autocomplete="off"
+               placeholder="Escribe un nombre, apellido o facultad (ej. Torres, FISI, Medicina)"
+               oninput="seleccionarDesdeBuscador()" onchange="seleccionarDesdeBuscador()">
+        <datalist id="lista-personal"></datalist>
+        <small>Al elegir a la persona se completan nombres, apellidos, cargo, unidad y la firma digital.</small>
+      </div>
       
       <div class="row">
         <div class="col form-group">
@@ -590,6 +603,7 @@
     if (viewName === 'app') {
       document.getElementById('view-app').style.display = 'block';
       setTimeout(initSignaturePad, 100);
+      llenarBuscadorPersonal();
       cargarDirectorio();
       cargarDatosVistaPrevia();
     } else if (viewName === 'dashboard') {
@@ -739,8 +753,114 @@
     }
     return values;
   }
-// ================= DIRECTORIO AUTOCOMPLETADO =================
-  var directorioGlobal = [];
+// ================= DIRECTORIO DE PERSONAL DE FACULTADES (incrustado) =================
+  var PERSONAL_FACULTADES = [
+    {"nombres": "Ricardo David", "apellidos": "Torres Agurto", "cargo": "Jefe", "unidad": "UPPR - FCA", "facultad": "FACULTAD DE CIENCIAS ADMINISTRATIVAS"},
+    {"nombres": "Elizabeth Lucero", "apellidos": "Huamancha Avila", "cargo": "Asistente", "unidad": "UPPR - FCA", "facultad": "FACULTAD DE CIENCIAS ADMINISTRATIVAS"},
+    {"nombres": "Lianne Antuannete", "apellidos": "Segovia Sanoni", "cargo": "Jefa", "unidad": "UPPR - FIEE", "facultad": "FACULTAD DE INGENIERÍA ELÉCTRICA Y ELECTRÓNICA"},
+    {"nombres": "Maricielo", "apellidos": "Cristobal Campos", "cargo": "Bolsista", "unidad": "UPPR - FIEE", "facultad": "FACULTAD DE INGENIERÍA ELÉCTRICA Y ELECTRÓNICA"},
+    {"nombres": "Rosa", "apellidos": "Coaila Moreno", "cargo": "Jefa", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA"},
+    {"nombres": "Juliette", "apellidos": "Galvez Yupanqui", "cargo": "Bolsista", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA"},
+    {"nombres": "Leomar Nicolas", "apellidos": "Bonzano Chavez", "cargo": "Bolsista", "unidad": "UPPR - FPSI", "facultad": "FACULTAD DE PSICOLOGÍA"},
+    {"nombres": "Maria Elizabeth", "apellidos": "Angeles Paredes", "cargo": "Jefa", "unidad": "UPPR - FQIQ", "facultad": "FACULTAD DE QUÍMICA E INGENIERÍA QUÍMICA"},
+    {"nombres": "Jorge", "apellidos": "Palomino", "cargo": "Asistente", "unidad": "UPPR - FQIQ", "facultad": "FACULTAD DE QUÍMICA E INGENIERÍA QUÍMICA"},
+    {"nombres": "Maritza", "apellidos": "Melchor Salas", "cargo": "Jefa - UPPR", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA"},
+    {"nombres": "Loreley Yesel Audrey", "apellidos": "Rojas Berrios", "cargo": "Bolsista", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA"},
+    {"nombres": "Salvador Stalin", "apellidos": "Aymara Vilca", "cargo": "Bolsista", "unidad": "UPPR - FISI", "facultad": "FACULTAD DE INGENIERÍA DE SISTEMAS E INFORMÁTICA"},
+    {"nombres": "Mirtha", "apellidos": "Ponce Suarez", "cargo": "Jefa - UPPR", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS"},
+    {"nombres": "Yna Levy", "apellidos": "Cristobal Espinoza", "cargo": "Especialista - UPPR", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS"},
+    {"nombres": "Renzo", "apellidos": "Romero Ochoa", "cargo": "Bolsista", "unidad": "UPPR - FCM", "facultad": "FACULTAD DE CIENCIAS MATEMÁTICAS"},
+    {"nombres": "Armando", "apellidos": "Cadenillas Lopez", "cargo": "Jefe UPPR", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS"},
+    {"nombres": "María Esther", "apellidos": "Torres Almeyda", "cargo": "Técnico - UPPR", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS"},
+    {"nombres": "Kiara Antuaneth", "apellidos": "Zavalaga Chumbes", "cargo": "Apoyo tecnico", "unidad": "UPPR - FLCH", "facultad": "FACULTAD DE LETRAS Y CIENCIAS HUMANAS"},
+    {"nombres": "Zinnia", "apellidos": "Gomero Rodriguez", "cargo": "Asistente - UPPR", "unidad": "UPPR - FCC", "facultad": "FACULTAD DE CIENCIAS CONTABLES"},
+    {"nombres": "Oscar", "apellidos": "Evangelista Fundes", "cargo": "Asistente - UPPR", "unidad": "UPPR - FCC", "facultad": "FACULTAD DE CIENCIAS CONTABLES"},
+    {"nombres": "Enver", "apellidos": "León Gonzales", "cargo": "Jefe UPPR", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
+    {"nombres": "Carmen Gladys", "apellidos": "Peña Suasnabar", "cargo": "Jefe OCAA", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
+    {"nombres": "María Eugenia", "apellidos": "Chukiwanka", "cargo": "Secretaria - OCAA", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
+    {"nombres": "Fidel Gregorio", "apellidos": "Fretel Martínez", "cargo": "Director Administrativo", "unidad": "UPPR - FFB", "facultad": "FACULTAD DE FARMACIA Y BIOQUÍMICA"},
+    {"nombres": "Siever Miguel", "apellidos": "Morales Cauti", "cargo": "Jefe OCAA", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA"},
+    {"nombres": "Miluska", "apellidos": "Garcés Grauz", "cargo": "Jefa - UPPR", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA"},
+    {"nombres": "Andrés", "apellidos": "Cáceres Tapia", "cargo": "Asistente - UPPR", "unidad": "UPPR - FMV", "facultad": "FACULTAD DE MEDICINA VETERINARIA"},
+    {"nombres": "Diana Luz", "apellidos": "Beraun Mora", "cargo": "Jefa - UPPR", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS"},
+    {"nombres": "Marcela Marisol", "apellidos": "Ventura Castillo", "cargo": "Bolsista", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS"},
+    {"nombres": "Anthony Tyaro", "apellidos": "Silva Maciel", "cargo": "Bolsista", "unidad": "UPPR - FCB", "facultad": "FACULTAD DE CIENCIAS BIOLÓGICAS"},
+    {"nombres": "Herbert", "apellidos": "Orbegozo Perez", "cargo": "UPPR - Jefe", "unidad": "UPPR - FO", "facultad": "FACULTAD DE ODONTOLOGÍA"},
+    {"nombres": "Luis Ángel", "apellidos": "Ontón Fuentes", "cargo": "Asistente - UPPR", "unidad": "UPPR - FO", "facultad": "FACULTAD DE ODONTOLOGÍA"},
+    {"nombres": "Hugo", "apellidos": "Sanchez Diaz", "cargo": "Jefe OCAA", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS"},
+    {"nombres": "Richar Giomar", "apellidos": "Alarcon Carrazco", "cargo": "Bolsista", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS"},
+    {"nombres": "Renato", "apellidos": "Espinoza Castillo", "cargo": "Bolsista", "unidad": "UPPR - FCE", "facultad": "FACULTAD DE CIENCIAS ECONÓMICAS"},
+    {"nombres": "Ciro Sergio", "apellidos": "Bedia Guillen", "cargo": "Jefa OCAA", "unidad": "OCAA - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA"},
+    {"nombres": "Jenny Haydee", "apellidos": "Curro Alá", "cargo": "UPPR - Jefe", "unidad": "UPPR - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA"},
+    {"nombres": "Janet", "apellidos": "Aramburú Palomino", "cargo": "Asistente - OCAA", "unidad": "OCAA - FIGMMG", "facultad": "FACULTAD DE INGENIERÍA GEOLÓGICA, MINERA, METALÚRGICA Y GEOGRÁFICA"},
+    {"nombres": "Yuri Massiel", "apellidos": "Vivanco Ciprian", "cargo": "Jefe UPPR", "unidad": "UPPR - FII", "facultad": "FACULTAD DE INGENIERÍA INDUSTRIAL"},
+    {"nombres": "Deysi", "apellidos": "Ledezma Santos", "cargo": "Asistente", "unidad": "UPPR - FII", "facultad": "FACULTAD DE INGENIERÍA INDUSTRIAL"},
+    {"nombres": "Erick Andres", "apellidos": "Farias Pena", "cargo": "UPPR", "unidad": "UPPR - FCS", "facultad": "FACULTAD DE CIENCIAS SOCIALES"},
+    {"nombres": "Luis", "apellidos": "De La Cruz", "cargo": "UPPR", "unidad": "UPPR - FCS", "facultad": "FACULTAD DE CIENCIAS SOCIALES"},
+    {"nombres": "Lidia Anita", "apellidos": "Pacco Loaiza", "cargo": "Coordinadora - UPPR", "unidad": "UPPR - FCF", "facultad": "FACULTAD DE CIENCIAS FÍSICAS"},
+    {"nombres": "Rodolfo", "apellidos": "Huisa Cornejo", "cargo": "Director Administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA"},
+    {"nombres": "Helena Virginia", "apellidos": "Cuya García", "cargo": "Apoyo administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA"},
+    {"nombres": "Melissa Yessenia", "apellidos": "Quinto Quinto", "cargo": "Apoyo administrativo", "unidad": "UPPR - FM", "facultad": "FACULTAD DE MEDICINA"},
+    {"nombres": "Oscar", "apellidos": "Gomez Carreño", "cargo": "Jefe UPPR", "unidad": "UPPR - FE", "facultad": "FACULTAD DE EDUCACIÓN"},
+    {"nombres": "Karina", "apellidos": "Guerrero Villavicensio", "cargo": "Personal técnico", "unidad": "UPPR - FE", "facultad": "FACULTAD DE EDUCACIÓN"}
+  ];
+
+  function nombreCompleto(p) { return p.nombres + ' ' + p.apellidos; }
+
+  function llenarBuscadorPersonal() {
+    var dl = document.getElementById('lista-personal');
+    dl.innerHTML = '';
+    PERSONAL_FACULTADES.forEach(function(p) {
+      var opt = document.createElement('option');
+      opt.value = nombreCompleto(p);
+      opt.label = p.cargo + ' · ' + p.unidad + ' · ' + p.facultad;
+      dl.appendChild(opt);
+    });
+  }
+
+  function normalizar(t) {
+    return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  function seleccionarDesdeBuscador() {
+    var valor = normalizar(document.getElementById('buscar-persona').value);
+    if (!valor) return;
+    var p = PERSONAL_FACULTADES.find(function(x) { return normalizar(nombreCompleto(x)) === valor; });
+    if (!p) return;
+    completarAsistente(p.nombres, p.apellidos, p.cargo, p.unidad, true);
+    document.getElementById('buscar-persona').value = '';
+    programarVistaPrevia();
+  }
+
+  function completarAsistente(nombres, apellidos, cargo, unidad, sobrescribir) {
+    var campos = { 'asis-nombres': nombres, 'asis-apellidos': apellidos, 'asis-cargo': cargo, 'asis-unidad': unidad };
+    Object.keys(campos).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (sobrescribir || !el.value) el.value = campos[id] || '';
+    });
+
+    var checkboxFirma = document.getElementById('usar-firma-digital');
+    if (checkboxFirma) checkboxFirma.checked = true;
+    firmaSubidaBase64 = null;
+    document.getElementById('firma-file-input').value = '';
+
+    // Aviso en el cuadro de firma: el sello oficial se pone en el PDF
+    if (typeof sigCanvas !== 'undefined' && sigCtx) {
+      clearSignature();
+      sigCtx.fillStyle = "#ebf8ff";
+      sigCtx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+      sigCtx.fillStyle = "#2b6cb0";
+      sigCtx.font = "14px 'Segoe UI', sans-serif";
+      sigCtx.fillText("✅ FIRMA DIGITAL AUTOMÁTICA LISTA", 15, 30);
+      sigCtx.fillStyle = "#1a202c";
+      sigCtx.font = "bold 20px 'Segoe UI', sans-serif";
+      sigCtx.fillText(String(apellidos).toUpperCase() + ", " + nombres, 15, 65);
+      sigCtx.fillStyle = "#4a5568";
+      sigCtx.font = "12px 'Segoe UI', sans-serif";
+      sigCtx.fillText("El sello oficial se insertará en el PDF al generar el acta.", 15, 100);
+      sigDrawing = false;
+    }
+  }
 
 // ================= HISTORIAL Y DESPLEGABLES (DATALIST) =================
   var historialGlobal = [];
@@ -759,12 +879,14 @@
         dlNombres.innerHTML = ''; dlApellidos.innerHTML = ''; 
         dlCargos.innerHTML = ''; dlUnidades.innerHTML = '';
 
-        // Llenar el desplegable de Nombres
-        res.asistentes.forEach(function(a) {
-          var opt = document.createElement('option');
-          opt.value = a.nombre;
-          dlNombres.appendChild(opt);
-        });
+        // Llenar el desplegable de Nombres (directorio de facultades + historial)
+        var vistos = {};
+        PERSONAL_FACULTADES.map(function(p) { return p.nombres; }).concat(res.asistentes.map(function(a) { return a.nombre; }))
+          .forEach(function(n) {
+            if (!n || vistos[n]) return;
+            vistos[n] = true;
+            dlNombres.appendChild(new Option(n));
+          });
         
         // Llenar desplegables independientes de Apellidos, Cargos y Unidades
         res.apellidos.forEach(function(a) { dlApellidos.appendChild(new Option(a)); });
@@ -775,45 +897,20 @@
   }
 
   function autocompletarDesdeNombre() {
-    var inputNombre = document.getElementById('asis-nombres').value.trim().toLowerCase();
+    var inputNombre = normalizar(document.getElementById('asis-nombres').value);
     if (!inputNombre) return;
 
-    // Buscamos si el nombre coincide con el historial
-    var match = historialGlobal.find(function(a) {
-      return a.nombre.toLowerCase() === inputNombre;
+    var persona = PERSONAL_FACULTADES.filter(function(p) {
+      return normalizar(p.nombres) === inputNombre || normalizar(nombreCompleto(p)) === inputNombre;
     });
-
-    if (match) {
-      // Autocompleta los campos vacíos
-      if (!document.getElementById('asis-apellidos').value) document.getElementById('asis-apellidos').value = match.apellido;
-      if (!document.getElementById('asis-cargo').value) document.getElementById('asis-cargo').value = match.cargo;
-      if (!document.getElementById('asis-unidad').value) document.getElementById('asis-unidad').value = match.unidad;
-      
-      // Activar la firma digital automáticamente
-      var checkboxFirma = document.getElementById('usar-firma-digital');
-      if(checkboxFirma) checkboxFirma.checked = true;
-      
-      // Dibujar la previsualización de la firma en el cuadro (Canvas)
-      if (typeof sigCanvas !== 'undefined' && sigCtx) {
-        clearSignature();
-        sigCtx.fillStyle = "#ebf8ff";
-        sigCtx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
-        
-        sigCtx.fillStyle = "#2b6cb0";
-        sigCtx.font = "14px 'Segoe UI', sans-serif";
-        sigCtx.fillText("✅ FIRMA DIGITAL AUTOMÁTICA LISTA", 15, 30);
-        
-        sigCtx.fillStyle = "#1a202c";
-        sigCtx.font = "bold 20px 'Segoe UI', sans-serif";
-        sigCtx.fillText(match.apellido.toUpperCase() + ", " + match.nombre, 15, 65);
-        
-        sigCtx.fillStyle = "#4a5568";
-        sigCtx.font = "12px 'Segoe UI', sans-serif";
-        sigCtx.fillText("El sello oficial se insertará en el PDF al generar el acta.", 15, 100);
-        
-        sigDrawing = false;
-      }
+    if (persona.length === 1) {
+      var p = persona[0];
+      completarAsistente(p.nombres, p.apellidos, p.cargo, p.unidad, true);
+      return;
     }
+
+    var match = historialGlobal.find(function(a) { return normalizar(a.nombre) === inputNombre; });
+    if (match) completarAsistente(match.nombre, match.apellido, match.cargo, match.unidad, false);
   }
   // ================= FIRMA DIGITAL =================
   function handleFirmaFile(input) {
