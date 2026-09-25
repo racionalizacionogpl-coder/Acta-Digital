@@ -78,11 +78,6 @@
     .view-section { display: none; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .dashboard-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
-    .dashboard-table th, .dashboard-table td { border: 1px solid #cbd5e0; padding: 10px; text-align: left; }
-    .dashboard-table th { background: #edf2f7; font-weight: bold; color: #2d3748; }
-    .dashboard-table tr:nth-child(even) { background: #f7fafc; }
-    
     .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; display: inline-block; text-transform: uppercase; }
     .badge.verde { background: #c6f6d5; color: #22543d; }
     .badge.rojo { background: #fed7d7; color: #822727; }
@@ -100,33 +95,86 @@
     /* NUEVO: Mensaje de error visible */
     .error-box { background: #fed7d7; color: #822727; padding: 15px; border-radius: 6px; border: 1px solid #fc8181; margin: 10px 0; }
     .info-box { background: #e6fffa; color: #234e52; padding: 15px; border-radius: 6px; border: 1px solid #81e6d9; margin: 10px 0; }
-    /* ================= ESTILOS DEL PANEL GERENCIAL ================= */
-    .dashboard-wrapper { background-color: #eef2f6; padding: 25px; border-radius: 12px; font-family: 'Segoe UI', sans-serif; }
-    .dashboard-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #cbd5e0; padding-bottom: 10px; margin-bottom: 25px; }
-    .dashboard-header h2 { margin: 0; border: none; font-size: 2em; color: #1a202c; font-weight: 700; }
-    
-    .kpi-container { display: flex; gap: 20px; justify-content: space-between; margin-bottom: 25px; flex-wrap: wrap; }
-    .kpi-card { flex: 1; min-width: 140px; padding: 20px 10px; border-radius: 12px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.2s; }
-    .kpi-card:hover { transform: translateY(-5px); }
-    
-    /* Colores idénticos a la imagen */
-    .kpi-card.gray { background: linear-gradient(135deg, #cbd5e0, #a0aec0); color: #1a202c; }
-    .kpi-card.green { background: linear-gradient(135deg, #68d391, #48bb78); color: #1c4532; }
-    .kpi-card.blue { background: linear-gradient(135deg, #90cdf4, #63b3ed); color: #2a4365; }
-    .kpi-card.yellow { background: linear-gradient(135deg, #fef08a, #f6e05e); color: #744210; }
-    .kpi-card.red { background: linear-gradient(135deg, #fc8181, #e53e3e); color: #fff5f5; }
-    
-    .kpi-title { font-size: 1.05em; font-weight: 600; line-height: 1.3; }
-    .kpi-value { font-size: 2em; font-weight: 900; margin: 5px 0; }
-    .kpi-icon { font-size: 3em; margin-top: 5px; opacity: 0.75; }
-    
-    .chart-panel { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 25px; }
-    
-    .gauge-wrapper { width: 350px; margin: 0 auto; position: relative; text-align: center; }
-    .gauge-text { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; flex-direction: column; }
-    .gauge-pct { font-size: 3em; font-weight: 800; color: #2c3e50; }
-    .gauge-label { font-size: 0.9em; font-weight: 700; color: #4a5568; letter-spacing: 1px; text-transform: uppercase; }
+    /* ================= PANEL GERENCIAL (paleta del tablero GxP OGPL) ================= */
+    .container.ancho { max-width: 1320px; background: #e8eef3; }
+    .dsh { --navy:#10233f; --navy2:#173355; --blue:#3f86ef; --green:#16a67f; --red:#ee6868; --amber:#f59e0b;
+           --text:#162742; --muted:#71829a; --line:#e8edf3; --verde-barra:#1C4E43; --gris-barra:#94A3B8; --rojo-barra:#A84641;
+           font-family: 'Outfit', 'Segoe UI', sans-serif; color: var(--text); }
+    .dsh, .dsh * { box-sizing: border-box; }
+    .dsh h1, .dsh h2, .dsh h3 { border: none; padding: 0; margin: 0; color: var(--text); }
+    .dsh-cabecera { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+    .dsh-marca { display: flex; align-items: center; gap: 14px; }
+    .dsh-icono { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--navy); }
+    .dsh-cabecera h1 { font-size: 1.75em; font-weight: 800; letter-spacing: -0.5px; }
+    .dsh-cabecera h1 span { font-weight: 300; color: var(--muted); }
+    .dsh-cabecera p { margin: 4px 0 0; font-size: 0.9em; font-weight: 500; color: var(--muted); }
+    .dsh-relieve { background: linear-gradient(145deg, #ffffff, #e6e6e6); border: 1px solid rgba(255,255,255,0.5);
+                   box-shadow: 5px 5px 10px rgba(15,26,46,0.1), -5px -5px 10px rgba(255,255,255,0.9); }
+    .dsh-btn { font-family: inherit; border-radius: 999px; padding: 10px 22px; font-weight: 700; font-size: 0.9em; color: #fff; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
+               background: linear-gradient(145deg, #101c31, #0d1729); box-shadow: 5px 5px 10px rgba(10,15,25,0.3), -3px -3px 8px rgba(40,55,80,0.2); }
+    .dsh-btn:hover { transform: translateY(1px); }
+    .dsh-estado { font-size: 0.8em; color: var(--blue); min-height: 1.2em; text-align: right; margin-top: 4px; }
+
+    .dsh-cuerpo { display: flex; gap: 24px; align-items: flex-start; }
+    .dsh-lateral { width: 250px; flex-shrink: 0; border-radius: 28px; padding: 22px; color: #fff; position: sticky; top: 10px;
+                   background: linear-gradient(145deg, #162541, #0c1525); border: 1px solid rgba(255,255,255,0.05);
+                   box-shadow: 12px 12px 24px rgba(10,15,25,0.4), -8px -8px 16px rgba(40,55,80,0.2); }
+    .dsh-lateral-tit { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.5px; padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .dsh-lateral h3 { color: rgba(255,255,255,0.6); font-size: 0.72em; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 10px; }
+    .dsh-lateral select { width: 100%; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px; font-family: inherit; font-size: 0.9em; margin-bottom: 18px; }
+    .dsh-lateral select option { color: #162742; }
+    .dsh-resp { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; }
+    .dsh-resp li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; font-size: 0.85em; cursor: pointer; background: rgba(255,255,255,0.04); }
+    .dsh-resp li:hover, .dsh-resp li.activo { background: rgba(63,134,239,0.25); }
+    .dsh-resp li b { font-size: 0.85em; padding: 2px 8px; border-radius: 999px; color: #fff; flex-shrink: 0; }
+    .dsh-fila { display: flex; justify-content: space-between; font-size: 0.88em; margin-top: 6px; }
+    .dsh-fila span:first-child { color: rgba(255,255,255,0.7); }
+    .dsh-pie-lateral { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px; }
+    .dsh-pie-lateral small { color: rgba(255,255,255,0.4); }
+
+    .dsh-principal { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+    .dsh-card { background: linear-gradient(145deg, #ffffff, #f3f7fa); border-radius: 20px; border: 1px solid rgba(255,255,255,0.8);
+                box-shadow: 10px 10px 20px rgba(15,26,46,0.1), -10px -10px 20px rgba(255,255,255,0.9); transition: all 0.3s ease; position: relative; overflow: hidden; }
+    .dsh-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    .dsh-kpi { padding: 22px; }
+    .dsh-kpi:hover { transform: translateY(-5px); box-shadow: 15px 15px 30px rgba(15,26,46,0.15), -15px -15px 30px rgba(255,255,255,1); }
+    .dsh-kpi::after { content: ''; position: absolute; top: 0; right: 0; width: 10px; height: 100%; background: var(--acento, var(--navy)); border-radius: 0 12px 12px 0; opacity: 0.85; }
+    .dsh-kpi h3 { font-size: 0.78em; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .dsh-kpi .valor { font-size: 2.4em; font-weight: 900; letter-spacing: -1px; color: var(--navy); line-height: 1.1; }
+    .dsh-kpi .nota { display: inline-block; margin-top: 8px; font-size: 0.78em; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+    .dsh-kpi.global { background: linear-gradient(145deg, #162541, #0c1525); border-color: rgba(255,255,255,0.05); }
+    .dsh-kpi.global h3 { color: rgba(255,255,255,0.6); }
+    .dsh-kpi.global .valor { color: #fff; }
+    .dsh-barra-avance { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.15); margin-top: 12px; overflow: hidden; }
+    .dsh-barra-avance div { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--blue), #78aaf7); transition: width 0.6s ease; }
+
+    .dsh-grafico { padding: 24px; }
+    .dsh-grafico-cab { margin-bottom: 14px; }
+    .dsh-grafico-cab h2 { font-size: 1.1em; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .dsh-grafico-cab p { margin: 4px 0 0; font-size: 0.85em; font-weight: 500; color: var(--muted); }
+    .dsh-grafico-cuerpo { display: flex; gap: 20px; }
+    .dsh-lienzo { flex: 1; min-width: 0; position: relative; height: 340px; }
+    .dsh-clasif { width: 220px; flex-shrink: 0; border-left: 1px solid var(--line); padding-left: 18px; font-size: 0.85em; max-height: 340px; overflow-y: auto; }
+    .dsh-clasif h4 { margin: 12px 0 6px; font-size: 0.75em; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .dsh-clasif h4:first-child { margin-top: 0; }
+    .dsh-clasif div { display: flex; justify-content: space-between; gap: 6px; padding: 4px 0; color: #41566d; }
+    .dsh-leyenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.8em; color: var(--muted); font-weight: 600; margin-top: 12px; }
+    .dsh-leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+    .dsh-formula { margin-top: 12px; font-size: 0.82em; color: #536980; background: #f8fbff; border-radius: 10px; padding: 10px 14px; }
+
+    .dsh-tabla-cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .dashboard-table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+    .dashboard-table th { background: #eff4f8; color: var(--text); font-weight: 700; text-transform: uppercase; font-size: 0.78em; letter-spacing: 0.5px; padding: 12px 10px; text-align: left; }
+    .dashboard-table td { padding: 11px 10px; border-bottom: 1px solid var(--line); color: #41566d; text-align: left; }
+    .dashboard-table tbody tr:nth-child(even) { background: #f8fbff; }
+    .dashboard-table tbody tr:hover { background: #eef4fd; }
+    .dsh .resumen-box { background: transparent; border: none; padding: 0; }
+
+    @media (max-width: 1100px) { .dsh-cuerpo { flex-direction: column; align-items: stretch; } .dsh-lateral { width: 100%; position: static; } }
+    @media (max-width: 760px) { .dsh-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .dsh-kpi { padding: 16px; } .dsh-kpi .valor { font-size: 1.8em; } .dsh-cabecera h1 { font-size: 1.3em; } .dsh-grafico-cuerpo { flex-direction: column; } .dsh-lienzo { flex: none; height: var(--alto-movil, 340px); }
+                                .dsh-clasif { width: auto; border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 12px; } }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -290,99 +338,133 @@
     </div>
 
 <!-- VISTA DASHBOARD (PANEL GERENCIAL) -->
-    <div id="view-dashboard" class="view-section">
-      <div class="dashboard-wrapper">
-        
-        <!-- CABECERA -->
-        <div class="dashboard-header">
-          <h2>Panel Gerencial de Cumplimiento de Acuerdos</h2>
-          <div style="text-align: right; color: #4a5568; font-weight: 500;">
-            Actualizado: <span id="dash-fecha-hora">--/--/---- --:--</span>
-            <br>
-            <button class="btn-primary" style="padding: 6px 12px; margin-top: 8px; font-size: 0.85em; border-radius: 6px;" onclick="cargarDashboard()">🔄 Refrescar Datos</button>
-            <div id="dashboard-status" style="font-size: 0.85em; color: #3182ce; margin-top: 6px; min-height: 1.2em;"></div>
+    <div id="view-dashboard" class="view-section dsh">
+
+      <header class="dsh-cabecera">
+        <div class="dsh-marca">
+          <div class="dsh-icono dsh-relieve">📊</div>
+          <div>
+            <h1>Cumplimiento de Acuerdos <span>Panel de Control</span></h1>
+            <p>Oficina de Racionalización · OGPL UNMSM | Actualizado: <span id="dash-fecha-hora">--/--/---- --:--</span></p>
           </div>
         </div>
-
-        <div id="dashboard-error" class="error-box" style="display:none;"></div>
-        <div id="dashboard-resumen" class="resumen-box" style="margin-bottom: 20px;"></div>
-
-        <!-- TARJETAS KPI SUPERIORES -->
-        <div class="kpi-container">
-          <div class="kpi-card gray">
-            <div class="kpi-title">Total de<br>Acuerdos: <span id="kpi-totales">0</span></div>
-            <div class="kpi-icon">📋</div>
-          </div>
-          <div class="kpi-card green">
-            <div class="kpi-title">Acuerdos<br>Cumplidos (100%): <span id="kpi-cumplidos">0</span></div>
-            <div class="kpi-icon">✔️</div>
-          </div>
-          <div class="kpi-card blue">
-            <div class="kpi-title">En Plazo (75%):<br><span id="kpi-enplazo">0</span></div>
-            <div class="kpi-icon">🕒</div>
-          </div>
-          <div class="kpi-card yellow">
-            <div class="kpi-title">Por Vencer<br>(50%): <span id="kpi-porvencer">0</span></div>
-            <div class="kpi-icon">🚩</div>
-          </div>
-          <div class="kpi-card red">
-            <div class="kpi-title">Acuerdos<br>Vencidos (0%): <span id="kpi-vencidos">0</span></div>
-            <div class="kpi-icon">✖️</div>
-          </div>
+        <div>
+          <button class="dsh-btn" onclick="cargarDashboard()">🔄 Refrescar datos</button>
+          <div id="dashboard-status" class="dsh-estado"></div>
         </div>
+      </header>
 
-        <!-- MEDIDOR CENTRAL (GAUGE) -->
-        <div class="chart-panel" style="padding-top: 40px; padding-bottom: 30px;">
-          <div class="gauge-wrapper">
-            <canvas id="chartGlobal"></canvas>
-            <div class="gauge-text">
-              <span class="gauge-pct" id="kpi-pct-global">0.00%</span>
-              <span class="gauge-label">CUMPLIMIENTO GLOBAL</span>
+      <div id="dashboard-error" class="error-box" style="display:none;"></div>
+
+      <div class="dsh-cuerpo">
+
+        <!-- LATERAL DE FILTROS -->
+        <aside class="dsh-lateral">
+          <div class="dsh-lateral-tit">🔎 Filtros</div>
+          <h3>Responsable / Oficina</h3>
+          <select id="filtro-oficina" onchange="cargarDashboard()">
+            <option value="">Todas las oficinas</option>
+          </select>
+          <h3>Ranking de cumplimiento</h3>
+          <ul id="dsh-lista-resp" class="dsh-resp"></ul>
+          <div class="dsh-pie-lateral">
+            <small>Resumen de la selección</small>
+            <div class="dsh-fila"><span>Responsables:</span><b id="dsh-n-resp">0</b></div>
+            <div class="dsh-fila"><span>Acuerdos:</span><b id="dsh-n-acuerdos">0</b></div>
+          </div>
+        </aside>
+
+        <div class="dsh-principal">
+
+          <!-- TARJETAS KPI -->
+          <div class="dsh-kpis">
+            <div class="dsh-card dsh-kpi global" style="--acento:#3f86ef;">
+              <h3>% Cumplimiento global</h3>
+              <div class="valor" id="kpi-pct-global">0.0%</div>
+              <div class="dsh-barra-avance"><div id="kpi-pct-barra"></div></div>
+            </div>
+            <div class="dsh-card dsh-kpi" style="--acento:#10233f;">
+              <h3>Total de acuerdos</h3>
+              <div class="valor" id="kpi-totales">0</div>
+              <span class="nota" style="background:#eff4f8; color:#536980;">Con y sin plazo</span>
+            </div>
+            <div class="dsh-card dsh-kpi" style="--acento:#16a67f;">
+              <h3>Cumplidos (100%)</h3>
+              <div class="valor" id="kpi-cumplidos" style="color:#16a67f;">0</div>
+              <span class="nota" style="background:#ecfdf5; color:#047857;">Terminados</span>
+            </div>
+            <div class="dsh-card dsh-kpi" style="--acento:#3f86ef;">
+              <h3>En plazo (75%)</h3>
+              <div class="valor" id="kpi-enplazo" style="color:#3f86ef;">0</div>
+              <span class="nota" style="background:#eef4fd; color:#1d4ed8;">Más de 1 día</span>
+            </div>
+            <div class="dsh-card dsh-kpi" style="--acento:#f59e0b;">
+              <h3>Por vencer (50%)</h3>
+              <div class="valor" id="kpi-porvencer" style="color:#d97706;">0</div>
+              <span class="nota" style="background:#fffbeb; color:#b45309;">Vence en ≤ 1 día</span>
+            </div>
+            <div class="dsh-card dsh-kpi" style="--acento:#ee6868;">
+              <h3>Vencidos (0%)</h3>
+              <div class="valor" id="kpi-vencidos" style="color:#e11d48;">0</div>
+              <span class="nota" style="background:#fff1f2; color:#be123c;">Plazo superado</span>
             </div>
           </div>
-          <div style="text-align: center; margin-top: 20px; font-size: 0.95em; color: #4a5568; background: #f8fafc; padding: 10px; border-radius: 8px;">
-            <b>Fórmula de % de Cumplimiento:</b> [(# Cumplidos × 1) + (# En Plazo × 0.75) + (# Por Vencer × 0.5)] / Total × 100 ℹ️
+
+          <div id="dashboard-resumen" class="resumen-box"></div>
+
+          <!-- GRÁFICO 1: % CUMPLIMIENTO POR RESPONSABLE -->
+          <div class="dsh-card dsh-grafico">
+            <div class="dsh-grafico-cab">
+              <h2>📶 % Cumplimiento por Responsable</h2>
+              <p>Ponderado: Cumplido 100% · En plazo 75% · Por vencer 50% · Vencido 0%</p>
+            </div>
+            <div class="dsh-grafico-cuerpo">
+              <div class="dsh-lienzo"><canvas id="chartCumplimiento"></canvas></div>
+              <div class="dsh-clasif" id="dsh-clasif"></div>
+            </div>
+            <div class="dsh-leyenda">
+              <span><i style="background:#1C4E43"></i>≥ 80% Satisfactorio</span>
+              <span><i style="background:#94A3B8"></i>50% – 79% En proceso</span>
+              <span><i style="background:#A84641"></i>&lt; 50% Crítico</span>
+            </div>
+            <div class="dsh-formula"><b>Fórmula:</b> [(# Cumplidos × 1) + (# En Plazo × 0.75) + (# Por Vencer × 0.5)] / Total × 100</div>
           </div>
-        </div>
 
-        <!-- GRÁFICOS INFERIORES -->
-        <div class="chart-panel">
-          <canvas id="chartCumplimiento" height="70"></canvas>
-        </div>
-        
-        <div class="chart-panel">
-          <canvas id="chartEstado" height="70"></canvas>
-        </div>
-
-        <!-- TABLA INFERIOR DE DESGLOSE -->
-        <div class="chart-panel" style="margin-top: 20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-            <h3 style="margin: 0; border: none;">Desglose de Acuerdos</h3>
-            <select id="filtro-oficina" onchange="cargarDashboard()" style="padding: 8px; border-radius: 6px; width: 250px;">
-              <option value="">Filtrar: Todas las oficinas</option>
-            </select>
+          <!-- GRÁFICO 2: ESTADO POR RESPONSABLE -->
+          <div class="dsh-card dsh-grafico">
+            <div class="dsh-grafico-cab">
+              <h2>📊 Estado de Acuerdos por Responsable</h2>
+              <p>Cantidad de acuerdos en cada estado</p>
+            </div>
+            <div class="dsh-lienzo"><canvas id="chartEstado"></canvas></div>
           </div>
-          <table class="dashboard-table">
-            <thead>
-              <tr>
-                <th>ID Acta</th>
-                <th>Compromiso</th>
-                <th>Responsable</th>
-                <th>Fecha Límite</th>
-                <th>Estado</th>
-                <th>Indicador</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody id="dashboard-body">
-              <tr><td colspan="7" style="text-align:center; padding: 20px;">Cargando acuerdos...</td></tr>
-            </tbody>
-          </table>
-        </div>
 
+          <!-- TABLA DE DESGLOSE -->
+          <div class="dsh-card dsh-grafico">
+            <div class="dsh-tabla-cab"><h2 style="font-size:1.1em;">📋 Desglose de Acuerdos</h2></div>
+            <div style="overflow-x:auto;">
+              <table class="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>ID Acta</th>
+                    <th>Compromiso</th>
+                    <th>Responsable</th>
+                    <th>Fecha Límite</th>
+                    <th>Estado</th>
+                    <th>Indicador</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-body">
+                  <tr><td colspan="7" style="text-align:center; padding: 20px;">Cargando acuerdos...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
-
     <!-- ADMIN -->
     <div id="view-admin" class="view-section">
       <h2>⚙️ Crear Nuevo Usuario</h2>
@@ -461,6 +543,7 @@
 
   function showView(viewName) {
     document.querySelectorAll('.view-section').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelector('#view-main .container').classList.toggle('ancho', viewName === 'dashboard');
     if (viewName === 'app') {
       document.getElementById('view-app').style.display = 'block';
       setTimeout(initSignaturePad, 100);
@@ -949,35 +1032,45 @@
       .obtenerAcuerdos(currentToken, filtro);
   }
 
-  // Variables globales para destruir gráficos previos antes de redibujar
+  // Instancias de los gráficos, se destruyen antes de redibujar
   var chartCumpInstance = null;
   var chartEstInstance = null;
 
-  // Variables globales de los gráficos (Evitan que se superpongan si recargas)
-  var chartCumpInstance = null;
-  var chartEstInstance = null;
-  var chartGlobalInstance = null;
+  var PALETA_BARRAS = [
+    { desde: 80, color: '#1C4E43' },
+    { desde: 50, color: '#94A3B8' },
+    { desde: -1, color: '#A84641' }
+  ];
+  function colorDeAvance(pct) {
+    return PALETA_BARRAS.filter(function(p) { return pct >= p.desde; })[0].color;
+  }
+  function pctResponsable(d) {
+    return d.total === 0 ? 0 : ((d.cumplidos + d.enPlazo * 0.75 + d.porVencer * 0.5) / d.total) * 100;
+  }
+  function escaparHtml(t) {
+    return String(t).replace(/[&<>"']/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
 
   function renderizarDashboard(acuerdos) {
     var tbody = document.getElementById('dashboard-body');
     tbody.innerHTML = '';
-    
-    // Imprimir fecha y hora actual de actualización en la cabecera
+
     var now = new Date();
-    var fechaActualizada = ("0" + now.getDate()).slice(-2) + "/" + 
-                           ("0" + (now.getMonth() + 1)).slice(-2) + "/" + 
-                           now.getFullYear() + " - " + 
-                           now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    var fechaActualizada = ("0" + now.getDate()).slice(-2) + "/" +
+                           ("0" + (now.getMonth() + 1)).slice(-2) + "/" +
+                           now.getFullYear() + " - " +
+                           now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
     document.getElementById('dash-fecha-hora').innerText = fechaActualizada;
 
     var total = acuerdos.length;
     var cumplidos = 0, enPlazo = 0, porVencer = 0, vencidos = 0;
     var oficinasData = {};
 
-    // Procesamiento y Clasificación de Datos OGPL
     acuerdos.forEach(function(ac) {
       var responsable = ac.responsable || 'No asignado';
-      
+
       if (!oficinasData[responsable]) {
         oficinasData[responsable] = { total: 0, cumplidos: 0, enPlazo: 0, porVencer: 0, vencidos: 0 };
       }
@@ -996,136 +1089,172 @@
         enPlazo++;
         oficinasData[responsable].enPlazo++;
       }
-      
-      // Dibujar la tabla inferior
+
       var tr = document.createElement('tr');
-      tr.innerHTML = 
-        '<td><strong>' + (ac.idActa || 'N/A') + '</strong></td>' +
-        '<td>' + (ac.acuerdo || 'Sin descripción') + '</td>' +
-        '<td>' + responsable + '</td>' +
-        '<td>' + (ac.fechaLimite || 'Sin fecha') + '</td>' +
-        '<td>' + (ac.estado || 'Desconocido') + '</td>' +
-        '<td><span class="badge ' + (ac.clase || 'azul') + '">' + (ac.indicador || 'SIN ESTADO') + '</span></td>' +
+      tr.innerHTML =
+        '<td><strong>' + escaparHtml(ac.idActa || 'N/A') + '</strong></td>' +
+        '<td>' + escaparHtml(ac.acuerdo || 'Sin descripción') + '</td>' +
+        '<td>' + escaparHtml(responsable) + '</td>' +
+        '<td>' + escaparHtml(ac.fechaLimite || 'Sin fecha') + '</td>' +
+        '<td>' + escaparHtml(ac.estado || 'Desconocido') + '</td>' +
+        '<td><span class="badge ' + (ac.clase || 'azul') + '">' + escaparHtml(ac.indicador || 'SIN ESTADO') + '</span></td>' +
         '<td>' +
-          (ac.estado !== 'Cumplido' 
-            ? '<button class="btn-success" style="padding:5px 10px; font-size:0.8em;" onclick="marcarCumplido(\'' + (ac.idAcuerdo || '') + '\')">✓ Cumplido</button>' 
-            : '<span style="color:#38a169; font-weight:bold;">✓ Terminado</span>') +
+          (ac.estado !== 'Cumplido'
+            ? '<button class="btn-success" style="padding:5px 10px; font-size:0.8em;" onclick="marcarCumplido(\'' + escaparHtml(ac.idAcuerdo || '') + '\')">✓ Cumplido</button>'
+            : '<span style="color:#16a67f; font-weight:bold;">✓ Terminado</span>') +
         '</td>';
       tbody.appendChild(tr);
     });
 
-    // Cálculo de Fórmula: % Cumplimiento General
-    var pctCumplimiento = total === 0 ? 0 : 
-      (((cumplidos * 1) + (enPlazo * 0.75) + (porVencer * 0.5) + (vencidos * 0)) / total) * 100;
+    var pctCumplimiento = total === 0 ? 0 :
+      ((cumplidos + enPlazo * 0.75 + porVencer * 0.5) / total) * 100;
 
-    // Actualizar los números de las tarjetas superiores
     document.getElementById('kpi-totales').innerText = total;
     document.getElementById('kpi-cumplidos').innerText = cumplidos;
     document.getElementById('kpi-enplazo').innerText = enPlazo;
     document.getElementById('kpi-porvencer').innerText = porVencer;
     document.getElementById('kpi-vencidos').innerText = vencidos;
-    document.getElementById('kpi-pct-global').innerText = pctCumplimiento.toFixed(2) + '%';
+    document.getElementById('kpi-pct-global').innerText = pctCumplimiento.toFixed(1) + '%';
+    document.getElementById('kpi-pct-barra').style.width = pctCumplimiento.toFixed(1) + '%';
+    document.getElementById('dashboard-resumen').innerHTML = '';
 
-    // Resumen en insignias bajo la cabecera
-    document.getElementById('dashboard-resumen').innerHTML =
-      '<span class="badge azul">Total: ' + total + '</span>' +
-      '<span class="badge verde">Cumplidos: ' + cumplidos + '</span>' +
-      '<span class="badge azul">En plazo: ' + enPlazo + '</span>' +
-      '<span class="badge amarillo">Por vencer: ' + porVencer + '</span>' +
-      '<span class="badge rojo">Vencidos: ' + vencidos + '</span>';
+    // Responsables ordenados de mayor a menor cumplimiento
+    var labels = Object.keys(oficinasData).sort(function(a, b) {
+      return pctResponsable(oficinasData[b]) - pctResponsable(oficinasData[a]);
+    });
 
-    var labelsOficinas = Object.keys(oficinasData);
-    
-    // Llamar a la función que dibuja los gráficos
-    dibujarGraficos(labelsOficinas, oficinasData, pctCumplimiento);
+    pintarLateral(labels, oficinasData, total);
+    dibujarGraficos(labels, oficinasData);
   }
 
-  function dibujarGraficos(labels, oficinasData, pctGlobal) {
-    if (chartGlobalInstance) chartGlobalInstance.destroy();
+  function pintarLateral(labels, oficinasData, total) {
+    var filtro = document.getElementById('filtro-oficina').value;
+    var lista = document.getElementById('dsh-lista-resp');
+    lista.innerHTML = '';
+    labels.forEach(function(resp) {
+      var pct = pctResponsable(oficinasData[resp]);
+      var li = document.createElement('li');
+      if (resp === filtro) li.className = 'activo';
+      li.innerHTML = '<span>' + escaparHtml(resp) + '</span><b style="background:' + colorDeAvance(pct) + '">' + pct.toFixed(0) + '%</b>';
+      li.onclick = function() {
+        var select = document.getElementById('filtro-oficina');
+        select.value = (select.value === resp) ? '' : resp;
+        cargarDashboard();
+      };
+      lista.appendChild(li);
+    });
+    document.getElementById('dsh-n-resp').innerText = labels.length;
+    document.getElementById('dsh-n-acuerdos').innerText = total;
+  }
+
+  function dibujarGraficos(labels, oficinasData) {
     if (chartCumpInstance) chartCumpInstance.destroy();
     if (chartEstInstance) chartEstInstance.destroy();
 
-    // GRÁFICO 1: Medidor (Gauge Central)
-    var ctxGlobal = document.getElementById('chartGlobal').getContext('2d');
-    chartGlobalInstance = new Chart(ctxGlobal, {
-      type: 'doughnut',
+    var pcts = labels.map(function(r) { return pctResponsable(oficinasData[r]); });
+
+    // Panel de clasificación al costado del gráfico
+    var grupos = [
+      { titulo: 'Satisfactorio (≥ 80%)', min: 80, max: 101, color: '#1C4E43' },
+      { titulo: 'En proceso (50% – 79%)', min: 50, max: 80, color: '#64748b' },
+      { titulo: 'Crítico (< 50%)', min: -1, max: 50, color: '#A84641' }
+    ];
+    var html = '';
+    grupos.forEach(function(g) {
+      var filas = labels.filter(function(r, i) { return pcts[i] >= g.min && pcts[i] < g.max; });
+      html += '<h4 style="color:' + g.color + '">' + g.titulo + ' · ' + filas.length + '</h4>';
+      filas.forEach(function(r) {
+        html += '<div><span>' + escaparHtml(r) + '</span><b>' + pctResponsable(oficinasData[r]).toFixed(1) + '%</b></div>';
+      });
+    });
+    document.getElementById('dsh-clasif').innerHTML = html;
+
+    if (typeof Chart === 'undefined') return;
+    Chart.defaults.font.family = "'Outfit', 'Segoe UI', sans-serif";
+    Chart.defaults.color = '#71829a';
+
+    // Etiquetas largas se parten en varias líneas para que no se monten
+    var etiquetas = labels.map(function(r) {
+      var palabras = r.split(' '), lineas = [], actual = '';
+      palabras.forEach(function(p) {
+        if ((actual + ' ' + p).trim().length > 16) { if (actual) lineas.push(actual); actual = p; }
+        else actual = (actual + ' ' + p).trim();
+      });
+      if (actual) lineas.push(actual);
+      return lineas;
+    });
+
+    // En pantallas angostas las barras van horizontales para que los nombres se lean completos
+    var horizontal = window.innerWidth < 760;
+    var eje = horizontal ? 'x' : 'y';
+    var ejeCategorias = { grid: { display: false }, ticks: { font: { size: 11 }, autoSkip: false, maxRotation: 45, minRotation: 0 } };
+    var altoMovil = Math.max(240, labels.length * (horizontal ? 56 : 0));
+    document.querySelectorAll('.dsh-lienzo').forEach(function(el) { el.style.setProperty('--alto-movil', altoMovil + 'px'); });
+
+    chartCumpInstance = new Chart(document.getElementById('chartCumplimiento'), {
+      type: 'bar',
       data: {
-        labels: ['Cumplimiento', 'Brecha'],
-        datasets: [{
-          data: [pctGlobal, 100 - pctGlobal],
-          backgroundColor: ['#2c3e50', '#e2e8f0'], // Azul oscuro y Gris claro
-          borderWidth: 0,
-          cutout: '75%',
-          borderRadius: 5
-        }]
+        labels: etiquetas,
+        datasets: [{ data: pcts, backgroundColor: pcts.map(colorDeAvance), borderRadius: 6, maxBarThickness: 40 }]
       },
       options: {
+        indexAxis: horizontal ? 'y' : 'x',
         responsive: true,
-        circumference: 180, // Lo convierte en un medio círculo
-        rotation: -90,      // Lo alinea hacia arriba para que parezca un medidor
-        plugins: { legend: { display: false }, tooltip: { enabled: false } },
-        animation: { animateScale: true }
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            title: function(items) { return labels[items[0].dataIndex]; },
+            label: function(item) { return item.parsed[eje].toFixed(1) + '% de cumplimiento'; }
+          } }
+        },
+        scales: (function() {
+          var sc = {};
+          sc[eje] = { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' },
+                      ticks: { stepSize: 20, padding: 8, callback: function(v) { return v + ' %'; } } };
+          sc[horizontal ? 'y' : 'x'] = ejeCategorias;
+          return sc;
+        })()
       }
     });
 
-    // GRÁFICO 2: Porcentaje de Cumplimiento por Oficina (Vs Metas)
-    var dataPctOficinas = labels.map(function(off) {
-      var d = oficinasData[off];
-      return (((d.cumplidos * 1) + (d.enPlazo * 0.75) + (d.porVencer * 0.5)) / d.total) * 100;
-    });
-
-    var ctx1 = document.getElementById('chartCumplimiento').getContext('2d');
-    chartCumpInstance = new Chart(ctx1, {
+    function serie(nombre, clave, color) {
+      return { label: nombre, data: labels.map(function(r) { return oficinasData[r][clave]; }),
+               backgroundColor: color, borderRadius: 4, maxBarThickness: 40 };
+    }
+    chartEstInstance = new Chart(document.getElementById('chartEstado'), {
       type: 'bar',
       data: {
-        labels: labels,
+        labels: etiquetas,
         datasets: [
-          {
-            label: '% Cumplimiento de la Oficina', data: dataPctOficinas,
-            backgroundColor: '#38a169', barPercentage: 0.4, borderRadius: 4
-          },
-          { type: 'line', label: 'Meta (95%)', data: Array(labels.length).fill(95), borderColor: '#38a169', borderWidth: 2, borderDash: [5, 5], fill: false, pointRadius: 0 },
-          { type: 'line', label: 'Alerta (60%)', data: Array(labels.length).fill(60), borderColor: '#ecc94b', borderWidth: 2, borderDash: [5, 5], fill: false, pointRadius: 0 },
-          { type: 'line', label: 'Crítico (25%)', data: Array(labels.length).fill(25), borderColor: '#e53e3e', borderWidth: 2, borderDash: [5, 5], fill: false, pointRadius: 0 }
+          serie('Cumplido', 'cumplidos', '#16a67f'),
+          serie('En plazo', 'enPlazo', '#3f86ef'),
+          serie('Por vencer', 'porVencer', '#f59e0b'),
+          serie('Vencido', 'vencidos', '#ee6868')
         ]
       },
       options: {
+        indexAxis: horizontal ? 'y' : 'x',
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          title: { display: true, text: 'Porcentaje de Cumplimiento por Oficina (vs. Metas)', font: { size: 18, weight: 'bold' }, color: '#000' },
-          legend: { position: 'top' }
+          legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 16 } },
+          tooltip: { callbacks: { title: function(items) { return labels[items[0].dataIndex]; } } }
         },
-        scales: { y: { beginAtZero: true, max: 100, ticks: { callback: function(value) { return value + "%" } } } }
+        scales: (function() {
+          var sc = {};
+          sc[horizontal ? 'y' : 'x'] = Object.assign({ stacked: true }, ejeCategorias);
+          sc[eje] = { stacked: true, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0, padding: 8 } };
+          return sc;
+        })()
       }
     });
 
-    // GRÁFICO 3: Estado de Acuerdos por Responsable
-    var dCumplidos = labels.map(function(off) { return oficinasData[off].cumplidos; });
-    var dEnPlazo = labels.map(function(off) { return oficinasData[off].enPlazo; });
-    var dPorVencer = labels.map(function(off) { return oficinasData[off].porVencer; });
-    var dVencidos = labels.map(function(off) { return oficinasData[off].vencidos; });
-
-    var ctx2 = document.getElementById('chartEstado').getContext('2d');
-    chartEstInstance = new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          { label: 'Cumplido', data: dCumplidos, backgroundColor: '#48bb78' },
-          { label: 'En Plazo', data: dEnPlazo, backgroundColor: '#4299e1' },
-          { label: 'Por Vencer', data: dPorVencer, backgroundColor: '#f6e05e' },
-          { label: 'Acuerdos Vencidos', data: dVencidos, backgroundColor: '#f56565' }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: { display: true, text: 'Estado de Acuerdos por Responsable', font: { size: 18, weight: 'bold' }, color: '#000' },
-          legend: { position: 'top' }
-        },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-      }
-    });
+    // La vista entra con una animación de 0.3s; se reajusta al ancho final
+    setTimeout(function() {
+      if (chartCumpInstance) chartCumpInstance.resize();
+      if (chartEstInstance) chartEstInstance.resize();
+    }, 400);
   }
 
   function marcarCumplido(idAcuerdo) {
