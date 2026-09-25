@@ -554,7 +554,7 @@
 
 <script>
   // Código del servidor (Codigo.gs) compartido para que la vista previa sea idéntica al PDF
-  <?!= codigoCompartido ?>
+  <?!= (typeof codigoCompartido !== 'undefined') ? codigoCompartido : '' ?>
 </script>
 <script>
   // ================= VARIABLES GLOBALES =================
