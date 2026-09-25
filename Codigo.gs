@@ -243,38 +243,96 @@ function generarActaPDF(datos, token) {
     
     var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
       '<style>' +
-      '@page { margin: 40px; }' +
-      'body { font-family: Arial, sans-serif; color: #000; font-size: 11px; }' +
+
+      // ── Página. El margen inferior deja sitio al pie fijo. ──────────
+      '@page { size: A4; margin: 12mm 14mm 16mm 14mm; }' +
+
+      // ── Cuerpo. Interlineado comprimido. ────────────────────────────
+      'body { font-family: Arial, Helvetica, sans-serif; color: #000; font-size: 11px; margin: 0; line-height: 1.25; }' +
+      'p { margin: 0 0 4px; }' +
+      'ol, ul { margin: 0 0 12px; padding-left: 18px; }' +
+      'li { margin-bottom: 2px; }' +
       '* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }' +
-      '.header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: none; }' +
+
+      // ── Tabla envoltorio: repite el encabezado en TODAS las hojas ───
+      //    y reserva el hueco del pie en cada una.
+      'table.documento { width: 100%; border-collapse: collapse; border: none; }' +
+      'table.documento > thead { display: table-header-group; }' +
+      'table.documento > tfoot { display: table-footer-group; }' +
+      'table.documento > thead > tr > th, table.documento > tbody > tr > td, table.documento > tfoot > tr > td { border: none; padding: 0; text-align: left; font-weight: normal; }' +
+      '.reserva-pie { height: 22mm; }' +
+
+      // ── Encabezado institucional (tipografía intacta) ───────────────
+      '.header-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; border: none; }' +
       '.header-table td { border: none; text-align: center; vertical-align: middle; }' +
       '.box-left { border: 1.5pt solid #000 !important; width: 25%; font-weight: bold; font-size: 12px; padding: 8px; }' +
       '.box-center { width: 75%; line-height: 1.3; }' +
-      '.info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }' +
-      '.info-table td { border: 1pt solid #000; padding: 6px; }' +
+      '.titulo-acta { text-align: center; font-weight: bold; font-size: 16px; text-decoration: underline; margin-bottom: 14px; }' +
+
+      // ── Tablas de datos ─────────────────────────────────────────────
+      '.info-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }' +
+      '.info-table td { border: 1pt solid #000; padding: 4px 6px; line-height: 1.2; }' +
       '.info-label { background-color: #d9e2f3 !important; font-weight: bold; width: 20%; }' +
-      '.data-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; text-align: center; border: 1pt solid #000; }' +
-      '.data-table th, .data-table td { border: 1pt solid #000; padding: 6px; vertical-align: middle; }' +
+      '.data-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; text-align: center; border: 1pt solid #000; }' +
+      '.data-table th, .data-table td { border: 1pt solid #000; padding: 4px 6px; vertical-align: middle; line-height: 1.2; }' +
       '.data-table th { background-color: #d9e2f3 !important; font-weight: bold; }' +
+      '.data-table thead { display: table-header-group; }' +
       '.signature-table { width: 100%; border: none !important; margin: 0; padding: 0; text-align: left; }' +
-      '.signature-table td { border: none !important; padding: 1px; line-height: 1.2; font-size: 8.5px; }' +
-      '.footer-table { width: 100%; margin-top: 30px; border-top: 1.5pt solid #000 !important; padding-top: 10px; border-collapse: collapse; }' +
+      '.signature-table td { border: none !important; padding: 1px; line-height: 1.15; font-size: 8.5px; }' +
+
+      // ── Cortes de página ────────────────────────────────────────────
+      //    Los títulos de sección arrastran consigo la tabla que viene
+      //    detrás, así no se quedan solos al final de una hoja.
+      '.titulo-seccion { font-weight: bold; margin: 0 0 5px; break-inside: avoid; page-break-inside: avoid; break-after: avoid; page-break-after: avoid; }' +
+      '.titulo-seccion + * { break-before: avoid; page-break-before: avoid; }' +
+      'tr { break-inside: avoid; page-break-inside: avoid; }' +
+      '.page-break { page-break-before: always; break-before: page; }' +
+      '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.5pt solid #ccc; padding: 5px; box-sizing: border-box; break-inside: avoid; page-break-inside: avoid; }' +
+
+      // ── Pie fijo al borde inferior de TODAS las hojas ───────────────
+      '.footer-table { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: #fff; border-top: 1.5pt solid #000 !important; padding-top: 8px; border-collapse: collapse; }' +
       '.footer-table td { border: none; vertical-align: middle; }' +
-      '.page-break { page-break-before: always; }' +
-      '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.5pt solid #ccc; padding: 5px; box-sizing: border-box; }' +
+
       '</style></head><body>' +
-      
-      // CABECERA (Recuadro izquierdo y Título centrado)
+
+      // ══ PIE ══ Va FUERA de la tabla y fijo abajo, por eso sale al
+      //           final de todas las hojas. El hueco se lo reserva la
+      //           banda .reserva-pie del <tfoot>.
+      '<table class="footer-table"><tr>' +
+      '<td style="width: 15%; text-align: left;">' +
+      '<img src="' + qrUrl + '" style="max-height: 70px;" alt="QR Code"/></td>' +
+      '<td style="width: 70%; text-align: justify; font-size: 9.5px; padding: 0 15px; color: #222;">' +
+      'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGEA). ' +
+      'Este documento es original y tiene validez conforme a la normativa vigente. Oficina de ' +
+      'Racionalización / Oficina General de Planificación- UNMSM. Fecha de emisión: ' + fechaEmision + '.' +
+      '</td>' +
+      '<td style="width: 15%; text-align: right; vertical-align: bottom; font-size: 11px; font-weight: bold;">' +
+      'Pág. 1</td>' +
+      '</tr></table>' +
+
+      '<table class="documento">' +
+
+      // ══ ENCABEZADO ══ Al ir en <thead> se repite en todas las hojas.
+      '<thead><tr><th>' +
       '<table class="header-table"><tr>' +
       '<td class="box-left">ACTA N°<br>' + numeroActa + '-' + anio + '-OR-<br>OGPL/UNMSM</td>' +
       '<td class="box-center">' +
       '<span style="font-weight: bold; font-size: 14px;">UNIVERSIDAD NACIONAL MAYOR DE SAN MARCOS</span><br>' +
       '<span style="font-size: 12px;">Universidad del Perú. Decana de América</span><br>' +
-      '<span style="font-weight: bold; font-size: 12px;">OFICINA GENERAL DE PLANIFICACIÓN</span><br><br>' +
-      '<span style="font-weight: bold; font-size: 16px; text-decoration: underline;">ACTA DE REUNIÓN</span>' +
+      '<span style="font-weight: bold; font-size: 12px;">OFICINA GENERAL DE PLANIFICACIÓN</span>' +
       '</td>' +
       '</tr></table>' +
-      
+      '</th></tr></thead>' +
+
+      // ══ Banda vacía: reserva el hueco del pie en cada hoja ══
+      '<tfoot><tr><td><div class="reserva-pie"></div></td></tr></tfoot>' +
+
+      '<tbody><tr><td>' +
+
+      // El título del documento va una sola vez, en la primera hoja.
+      // Para repetirlo en todas, muévelo dentro del <thead> de arriba.
+      '<div class="titulo-acta">ACTA DE REUNIÓN</div>' +
+
       // DETALLES DE REUNIÓN (Info Section)
       '<table class="info-table">' +
       '<tr><td class="info-label">Tema:</td><td>' + datos.tema + '</td></tr>' +
@@ -322,8 +380,8 @@ function generarActaPDF(datos, token) {
     htmlStr += '</tbody></table>';
       
     // AGENDA
-    htmlStr += '<div style="font-weight: bold; margin-bottom: 5px;">Agenda a tratar:</div>' +
-      '<ol style="margin-top: 0; padding-left: 20px; margin-bottom: 20px;">' +
+    htmlStr += '<div class="titulo-seccion">Agenda a tratar:</div>' +
+      '<ol style="margin-top: 0;">' +
       (datos.agenda.length > 0 ? datos.agenda.map(function(item) { return '<li style="margin-bottom: 4px;">' + item + '</li>'; }).join('') : '<li>---</li>') +
       '</ol>';
       
@@ -384,19 +442,10 @@ function generarActaPDF(datos, token) {
       htmlStr += '</div>';
     }
     
-    // PIE DE PÁGINA (Con QR dinámico y número de página manual)
-    htmlStr += '<table class="footer-table"><tr>' +
-      '<td style="width: 15%; text-align: left;">' +
-      '<img src="' + qrUrl + '" style="max-height: 70px;" alt="QR Code"/></td>' +
-      '<td style="width: 70%; text-align: justify; font-size: 9.5px; padding: 0 15px; color: #222;">' +
-      'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGEA). ' +
-      'Este documento es original y tiene validez conforme a la normativa vigente. Oficina de ' +
-      'Racionalización / Oficina General de Planificación- UNMSM. Fecha de emisión: ' + fechaEmision + '.' +
-      '</td>' +
-      '<td style="width: 15%; text-align: right; vertical-align: bottom; font-size: 11px; font-weight: bold;">' +
-      'Pág. 1</td>' +
-      '</tr></table></body></html>';
-    
+    // Cierre del documento. El pie ya se escribió al principio del body:
+    // va fijo al borde inferior, así sale al final de todas las hojas.
+    htmlStr += '</td></tr></tbody></table></body></html>';
+
     var blob = HtmlService.createHtmlOutput(htmlStr).getAs(MimeType.PDF);
     blob.setName(idActaSolo + ' - ' + datos.tema + '.pdf'); 
     var archivo = carpeta.createFile(blob);
