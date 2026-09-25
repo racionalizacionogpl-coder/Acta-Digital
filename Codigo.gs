@@ -116,7 +116,7 @@ function inicializarSistema() {
   var ss = getSpreadsheet();
   var hojasRequeridas = [
     { nombre: 'Usuarios', headers: ['Email','PasswordHash','Nombre','Rol','UnidadOficina','FechaRegistro'] },
-    { nombre: 'Actas',    headers: ['ID_Acta','Tema','Modalidad','Lugar','Fecha','HoraInicio','HoraFin','URL_PDF','RegistradoPor','Timestamp','CantidadAsistentes','CantidadFotos'] },
+    { nombre: 'Actas',    headers: ['ID_Acta','Tema','Modalidad','Lugar','Fecha','HoraInicio','HoraFin','URL_PDF','RegistradoPor','Timestamp','CantidadAsistentes','CantidadFotos','Agenda'] },
     { nombre: 'Asistentes', headers: ['ID_Acta','Nombres','Apellidos','Cargo','Unidad','TieneFirma','Timestamp'] },
     { nombre: 'Acuerdos', headers: ['ID_Acuerdo','ID_Acta','Acuerdo','Responsable','Plazo','UnidadPlazo','FechaLimite','Estado','FechaCumplimiento','DiasRestantes','Indicador','Timestamp'] }
   ];
@@ -511,10 +511,13 @@ function guardarActaEnBD(idActa, datos, urlPDF, email) {
   
   // 1. Guardar en la hoja Actas
   var sheetActas = ss.getSheetByName('Actas');
+  // La columna Agenda (13) se agregó después: se crea el encabezado si falta
+  if (sheetActas.getRange(1, 13).getValue() === '') sheetActas.getRange(1, 13).setValue('Agenda');
   sheetActas.appendRow([
     idActa, datos.tema, datos.modalidad, datos.lugar, datos.fecha,
     datos.horaInicio, datos.horaFin, urlPDF, email, now,
-    datos.asistentes.length, (datos.fotos || []).length
+    datos.asistentes.length, (datos.fotos || []).length,
+    JSON.stringify(datos.agenda || [])
   ]);
   
   // 2. Guardar en la hoja Asistentes
@@ -698,6 +701,96 @@ function obtenerDatosVistaPrevia(token) {
       success: true,
       numeroActa: sheetActas.getLastRow().toString().padStart(3, '0'),
       logo: LOGO_UNMSM
+    };
+  } catch (e) {
+    return { success: false, error: e.toString() };
+  }
+}
+
+// -------------------- API: HISTORIAL DE TEMAS --------------------
+/**
+ * Temas de actas anteriores con los datos de la reunión más reciente de cada
+ * uno (modalidad, lugar, fecha, horario, agenda, acuerdos y compromisos), más
+ * las listas de valores ya usados para los desplegables del formulario.
+ */
+function obtenerHistorialTemas(token) {
+  try {
+    verificarToken(token);
+    var ss = getSpreadsheet();
+    var tz = ss.getSpreadsheetTimeZone();
+    var sheetActas = ss.getSheetByName('Actas');
+    var vacio = { success: true, temas: [], lugares: [], fechas: [], horas: [], agenda: [], acuerdos: [], compromisos: [], responsables: [] };
+    if (!sheetActas || sheetActas.getLastRow() < 2) return vacio;
+
+    var rango = sheetActas.getRange(2, 1, sheetActas.getLastRow() - 1, Math.max(13, sheetActas.getLastColumn()));
+    var valores = rango.getValues();
+    var visibles = rango.getDisplayValues();
+
+    var aFecha = function(v, txt) {
+      if (v instanceof Date) return Utilities.formatDate(v, tz, 'yyyy-MM-dd');
+      var m = String(txt).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+      return String(txt).trim();
+    };
+    var aHora = function(txt) {
+      var m = String(txt).match(/(\d{1,2}):(\d{2})\s*([ap])?/i);
+      if (!m) return '';
+      var h = parseInt(m[1], 10);
+      if (m[3] && m[3].toLowerCase() === 'p' && h < 12) h += 12;
+      if (m[3] && m[3].toLowerCase() === 'a' && h === 12) h = 0;
+      return ('0' + h).slice(-2) + ':' + m[2];
+    };
+
+    // Acuerdos y compromisos agrupados por acta
+    var porActa = {};
+    var sheetAcuerdos = ss.getSheetByName('Acuerdos');
+    if (sheetAcuerdos && sheetAcuerdos.getLastRow() > 1) {
+      sheetAcuerdos.getRange(2, 1, sheetAcuerdos.getLastRow() - 1, 6).getValues().forEach(function(r) {
+        var id = String(r[0]), acta = String(r[1]);
+        if (!id || !acta) return;
+        if (!porActa[acta]) porActa[acta] = { acuerdos: [], compromisos: [] };
+        if (id.indexOf('_CO') !== -1) {
+          porActa[acta].compromisos.push({ texto: String(r[2]), responsable: String(r[3]), plazo: String(r[4]), unidad: String(r[5]) });
+        } else {
+          porActa[acta].acuerdos.push({ texto: String(r[2]), responsable: String(r[3]) });
+        }
+      });
+    }
+
+    var temas = {}, unicos = { lugares: {}, fechas: {}, horas: {}, agenda: {}, acuerdos: {}, compromisos: {}, responsables: {} };
+    var sumar = function(lista, v) { v = String(v || '').trim(); if (v) unicos[lista][v] = true; };
+
+    valores.forEach(function(r, i) {
+      var tema = String(r[1] || '').trim();
+      if (!tema) return;
+      var agenda = [];
+      try { agenda = JSON.parse(r[12] || '[]'); } catch (e) { agenda = []; }
+      var registro = porActa[String(r[0])] || { acuerdos: [], compromisos: [] };
+      var datos = {
+        tema: tema,
+        modalidad: String(r[2] || ''),
+        lugar: String(r[3] || ''),
+        fecha: aFecha(r[4], visibles[i][4]),
+        horaInicio: aHora(visibles[i][5]),
+        horaFin: aHora(visibles[i][6]),
+        agenda: agenda,
+        acuerdos: registro.acuerdos,
+        compromisos: registro.compromisos
+      };
+      temas[tema.toLowerCase()] = datos; // queda la reunión más reciente de cada tema
+      sumar('lugares', datos.lugar); sumar('fechas', datos.fecha);
+      sumar('horas', datos.horaInicio); sumar('horas', datos.horaFin);
+      agenda.forEach(function(a) { sumar('agenda', a); });
+      datos.acuerdos.forEach(function(a) { sumar('acuerdos', a.texto); sumar('responsables', a.responsable); });
+      datos.compromisos.forEach(function(c) { sumar('compromisos', c.texto); sumar('responsables', c.responsable); });
+    });
+
+    var lista = function(k) { return Object.keys(unicos[k]).sort(); };
+    return {
+      success: true,
+      temas: Object.keys(temas).map(function(k) { return temas[k]; }).sort(function(a, b) { return a.tema.localeCompare(b.tema); }),
+      lugares: lista('lugares'), fechas: lista('fechas').reverse(), horas: lista('horas'),
+      agenda: lista('agenda'), acuerdos: lista('acuerdos'), compromisos: lista('compromisos'), responsables: lista('responsables')
     };
   } catch (e) {
     return { success: false, error: e.toString() };

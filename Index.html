@@ -244,7 +244,8 @@
       <div class="row">
         <div class="col form-group">
           <label>Tema a tratar</label>
-          <input type="text" id="tema" placeholder="Ej. Gestión Estratégica y Procesos">
+          <input type="text" id="tema" list="lista-temas" autocomplete="off" placeholder="Escribe o elige un tema ya registrado" oninput="aplicarTemaSeleccionado()" onchange="aplicarTemaSeleccionado()">
+          <datalist id="lista-temas"></datalist>
         </div>
         <div class="col form-group">
           <label>Modalidad</label>
@@ -259,22 +260,26 @@
       <div class="row">
         <div class="col form-group">
           <label>Lugar / Enlace</label>
-          <input type="text" id="lugar">
+          <input type="text" id="lugar" list="lista-lugares" autocomplete="off">
+          <datalist id="lista-lugares"></datalist>
         </div>
         <div class="col form-group">
           <label>Fecha</label>
-          <input type="date" id="fecha">
+          <input type="date" id="fecha" list="lista-fechas">
+          <datalist id="lista-fechas"></datalist>
         </div>
       </div>
 
       <div class="row">
         <div class="col form-group">
           <label>Hora de Inicio</label>
-          <input type="time" id="horaInicio">
+          <input type="time" id="horaInicio" list="lista-horas">
+          <datalist id="lista-horas"></datalist>
         </div>
         <div class="col form-group">
           <label>Hora de Término</label>
-          <input type="time" id="horaFin">
+          <input type="time" id="horaFin" list="lista-horas">
+          <datalist id="lista-agenda"></datalist><datalist id="lista-acuerdos"></datalist><datalist id="lista-compromisos"></datalist><datalist id="lista-responsables"></datalist>
         </div>
       </div>
 
@@ -604,6 +609,7 @@
       document.getElementById('view-app').style.display = 'block';
       setTimeout(initSignaturePad, 100);
       llenarBuscadorPersonal();
+      cargarHistorialTemas();
       cargarDirectorio();
       cargarDatosVistaPrevia();
     } else if (viewName === 'dashboard') {
@@ -670,13 +676,15 @@
   }
 
   // ================= AGENDA / ACUERDOS =================
-  function addDynamicItem(containerId, placeholder) {
+  function addDynamicItem(containerId, placeholder, valor) {
     var container = document.getElementById(containerId);
     var div = document.createElement('div');
     div.className = 'dynamic-item';
     var input = document.createElement('input');
     input.type = 'text';
     input.placeholder = placeholder + ' (Dejar en blanco si no aplica)';
+    input.value = valor || '';
+    if (containerId === 'agenda-container') { input.setAttribute('list', 'lista-agenda'); input.autocomplete = 'off'; }
     var btn = document.createElement('button');
     btn.className = 'btn-danger';
     btn.innerText = 'X';
@@ -687,14 +695,18 @@
   }
 
 // --- LÓGICA DE ACUERDOS (SIN PLAZO) ---
-  function addAcuerdoSimple() {
+  function addAcuerdoSimple(ac) {
     var container = document.getElementById('acuerdos-container');
     var div = document.createElement('div');
     div.className = 'dynamic-item acuerdo-simple-row';
     div.innerHTML = 
-      '<input type="text" class="acuerdo-texto" placeholder="Descripción del acuerdo" style="flex: 2;">' +
-      '<input type="text" class="acuerdo-responsable" placeholder="Responsable" style="flex: 1;">' +
+      '<input type="text" class="acuerdo-texto" list="lista-acuerdos" autocomplete="off" placeholder="Descripción del acuerdo" style="flex: 2;">' +
+      '<input type="text" class="acuerdo-responsable" list="lista-responsables" autocomplete="off" placeholder="Responsable" style="flex: 1;">' +
       '<button class="btn-danger" onclick="this.parentElement.remove()" style="width: 40px;">X</button>';
+    if (ac) {
+      div.querySelector('.acuerdo-texto').value = ac.texto || '';
+      div.querySelector('.acuerdo-responsable').value = ac.responsable || '';
+    }
     container.appendChild(div);
   }
 
@@ -711,13 +723,13 @@
   }
 
   // --- LÓGICA DE COMPROMISOS (CON PLAZO) ---
-  function addCompromisoItem() {
+  function addCompromisoItem(co) {
     var container = document.getElementById('compromisos-container');
     var div = document.createElement('div');
     div.className = 'dynamic-item compromiso-row';
     div.innerHTML = 
-      '<input type="text" class="compromiso-texto" placeholder="Descripción del compromiso" style="flex: 2;">' +
-      '<input type="text" class="compromiso-responsable" placeholder="Oficina responsable" style="flex: 1;">' +
+      '<input type="text" class="compromiso-texto" list="lista-compromisos" autocomplete="off" placeholder="Descripción del compromiso" style="flex: 2;">' +
+      '<input type="text" class="compromiso-responsable" list="lista-responsables" autocomplete="off" placeholder="Oficina responsable" style="flex: 1;">' +
       '<input type="number" class="compromiso-plazo" placeholder="N°" style="width: 60px;" min="1" value="1">' +
       '<select class="compromiso-unidad" style="width: 115px;">' + 
         '<option value="horas">Horas</option>' +
@@ -725,7 +737,67 @@
         '<option value="meses">Meses</option>' +
       '</select>' +
       '<button class="btn-danger" onclick="this.parentElement.remove()" style="width: 40px;">X</button>';
+    if (co) {
+      div.querySelector('.compromiso-texto').value = co.texto || '';
+      div.querySelector('.compromiso-responsable').value = co.responsable || '';
+      if (parseInt(co.plazo, 10) > 0) div.querySelector('.compromiso-plazo').value = parseInt(co.plazo, 10);
+      var sel = div.querySelector('.compromiso-unidad');
+      var unidad = String(co.unidad || '').toLowerCase().trim();
+      if (unidad === 'días') unidad = 'días hábiles';
+      if ([].some.call(sel.options, function(o) { return o.value === unidad; })) sel.value = unidad;
+    }
     container.appendChild(div);
+  }
+
+  // ================= HISTORIAL DE TEMAS (desplegables del formulario) =================
+  var temasGlobal = [];
+
+  function llenarDatalist(id, valores) {
+    var dl = document.getElementById(id);
+    if (!dl) return;
+    dl.innerHTML = '';
+    (valores || []).forEach(function(v) { dl.appendChild(new Option(v)); });
+  }
+
+  function cargarHistorialTemas() {
+    google.script.run.withSuccessHandler(function(res) {
+      if (!res || !res.success) return;
+      temasGlobal = res.temas;
+      llenarDatalist('lista-temas', res.temas.map(function(t) { return t.tema; }));
+      llenarDatalist('lista-lugares', res.lugares);
+      llenarDatalist('lista-fechas', res.fechas);
+      llenarDatalist('lista-horas', res.horas);
+      llenarDatalist('lista-agenda', res.agenda);
+      llenarDatalist('lista-acuerdos', res.acuerdos);
+      llenarDatalist('lista-compromisos', res.compromisos);
+      var responsables = res.responsables.slice();
+      PERSONAL_FACULTADES.forEach(function(p) { if (responsables.indexOf(p.unidad) === -1) responsables.push(p.unidad); });
+      llenarDatalist('lista-responsables', responsables.sort());
+    }).obtenerHistorialTemas(currentToken);
+  }
+
+  function aplicarTemaSeleccionado() {
+    var valor = normalizar(document.getElementById('tema').value);
+    if (!valor) return;
+    var t = temasGlobal.find(function(x) { return normalizar(x.tema) === valor; });
+    if (!t) { delete document.getElementById('tema').dataset.aplicado; return; }
+    if (document.getElementById('tema').dataset.aplicado === valor) return;
+    document.getElementById('tema').dataset.aplicado = valor;
+    document.getElementById('tema').value = t.tema;
+
+    if (t.modalidad) document.getElementById('modalidad').value = t.modalidad;
+    document.getElementById('lugar').value = t.lugar || '';
+    document.getElementById('fecha').value = t.fecha || '';
+    document.getElementById('horaInicio').value = t.horaInicio || '';
+    document.getElementById('horaFin').value = t.horaFin || '';
+
+    ['agenda-container', 'acuerdos-container', 'compromisos-container'].forEach(function(id) {
+      document.getElementById(id).innerHTML = '';
+    });
+    (t.agenda.length ? t.agenda : ['']).forEach(function(a) { addDynamicItem('agenda-container', 'Punto de agenda', a); });
+    (t.acuerdos.length ? t.acuerdos : [null]).forEach(function(a) { addAcuerdoSimple(a); });
+    (t.compromisos.length ? t.compromisos : [null]).forEach(function(c) { addCompromisoItem(c); });
+    programarVistaPrevia();
   }
 
   function getCompromisosValues() {
@@ -1188,6 +1260,8 @@
 
   function reiniciarTodo() {
     document.getElementById('tema').value = '';
+    delete document.getElementById('tema').dataset.aplicado;
+    cargarHistorialTemas();
     document.getElementById('modalidad').value = 'Presencial';
     document.getElementById('lugar').value = '';
     document.getElementById('fecha').value = '';
