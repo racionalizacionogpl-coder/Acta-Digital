@@ -174,6 +174,27 @@
     @media (max-width: 760px) { .dsh-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .dsh-kpi { padding: 16px; } .dsh-kpi .valor { font-size: 1.8em; } .dsh-cabecera h1 { font-size: 1.3em; } .dsh-grafico-cuerpo { flex-direction: column; } .dsh-lienzo { flex: none; height: var(--alto-movil, 340px); }
                                 .dsh-clasif { width: auto; border-left: none; padding-left: 0; border-top: 1px solid var(--line); padding-top: 12px; } }
   </style>
+  <style>
+    /* ================= FORMULARIO + VISTA PREVIA DEL PDF ================= */
+    .container.con-vista { max-width: 1480px; }
+    .acta-layout { display: flex; gap: 28px; align-items: flex-start; }
+    .acta-form { flex: 1 1 0; min-width: 0; }
+    .acta-vista { width: 46%; max-width: 640px; flex-shrink: 0; position: sticky; top: 12px;
+                  max-height: calc(100vh - 24px); display: flex; flex-direction: column;
+                  background: #e8eef3; border-radius: 14px; padding: 14px; box-sizing: border-box; }
+    .acta-vista-cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+                      font-weight: 700; color: #10233f; font-size: 0.95em; }
+    .acta-vista-cab small { font-weight: 600; color: #71829a; font-size: 0.8em; }
+    .acta-vista-hoja { overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 0; border-radius: 6px; }
+    .acta-vista-hoja iframe { border: 0; width: 210mm; display: block; transform-origin: 0 0; background: #fff;
+                              box-shadow: 0 6px 20px rgba(16,35,63,0.18); }
+    .acta-vista-nota { margin: 8px 0 0; font-size: 0.75em; color: #71829a; text-align: center; }
+    @media (max-width: 1100px) {
+      .acta-layout { flex-direction: column; align-items: stretch; }
+      .acta-vista { width: 100%; max-width: none; position: static; max-height: none; }
+      .acta-vista-hoja { max-height: 80vh; }
+    }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -212,6 +233,8 @@
 
     <!-- SECCIÓN: REGISTRO DE ACTAS -->
     <div id="view-app" class="view-section">
+    <div class="acta-layout">
+    <div class="acta-form">
       <h2>Datos de la Reunión</h2>
       
       <div class="row">
@@ -335,6 +358,20 @@
 
       <button class="btn-primary" style="width: 100%; padding: 15px; font-size: 1.1em; margin-top:20px" onclick="generarActa()">Generar y Guardar PDF del Acta</button>
       <div id="loader">⏳ Generando PDF y guardando en Drive / Base de Datos... Por favor espera.</div>
+    </div>
+
+    <!-- VISTA PREVIA DEL PDF (se actualiza mientras se llena el formulario) -->
+    <aside class="acta-vista">
+      <div class="acta-vista-cab">
+        <span>📄 Vista previa del PDF</span>
+        <small id="vista-estado">Formato final</small>
+      </div>
+      <div class="acta-vista-hoja" id="vista-hoja">
+        <iframe id="vista-frame" title="Vista previa del acta en PDF" scrolling="no"></iframe>
+      </div>
+      <p class="acta-vista-nota">El N° de acta y la fecha de emisión se asignan al generar el PDF.</p>
+    </aside>
+    </div>
     </div>
 
 <!-- VISTA DASHBOARD (PANEL GERENCIAL) -->
@@ -503,6 +540,10 @@
 </div>
 
 <script>
+  // Código del servidor (Codigo.gs) compartido para que la vista previa sea idéntica al PDF
+  <?!= codigoCompartido ?>
+</script>
+<script>
   // ================= VARIABLES GLOBALES =================
   var asistentes = [];
   var fotosBase64 = [];
@@ -543,11 +584,14 @@
 
   function showView(viewName) {
     document.querySelectorAll('.view-section').forEach(function(el) { el.style.display = 'none'; });
-    document.querySelector('#view-main .container').classList.toggle('ancho', viewName === 'dashboard');
+    var contenedor = document.querySelector('#view-main .container');
+    contenedor.classList.toggle('ancho', viewName === 'dashboard');
+    contenedor.classList.toggle('con-vista', viewName === 'app');
     if (viewName === 'app') {
       document.getElementById('view-app').style.display = 'block';
       setTimeout(initSignaturePad, 100);
       cargarDirectorio();
+      cargarDatosVistaPrevia();
     } else if (viewName === 'dashboard') {
       document.getElementById('view-dashboard').style.display = 'block';
       // NUEVO: Cargar automáticamente al entrar
@@ -604,6 +648,7 @@
           img.src = e.target.result;
           img.className = 'photo-thumb';
           document.getElementById('photo-preview').appendChild(img);
+          programarVistaPrevia();
         };
       })(file);
       reader.readAsDataURL(file);
@@ -939,19 +984,7 @@
       return;
     }
     document.getElementById('loader').style.display = 'block';
-    var datosReunion = {
-      tema: document.getElementById('tema').value,
-      modalidad: document.getElementById('modalidad').value,
-      lugar: document.getElementById('lugar').value,
-      fecha: document.getElementById('fecha').value,
-      horaInicio: document.getElementById('horaInicio').value,
-      horaFin: document.getElementById('horaFin').value,
-      agenda: getDynamicValues('agenda-container'),
-      acuerdos: getAcuerdosSimples(), // Lista sin plazo
-      compromisos: getCompromisosValues(), // Lista con plazo
-      asistentes: asistentes,
-      fotos: fotosBase64
-    }; 
+    var datosReunion = recolectarDatosActa();
     google.script.run.withSuccessHandler(function(res) {
       document.getElementById('loader').style.display = 'none';
       if(res.success) {
@@ -962,6 +995,99 @@
       }
     }).generarActaPDF(datosReunion, currentToken);
   }
+
+  function recolectarDatosActa() {
+    return {
+      tema: document.getElementById('tema').value,
+      modalidad: document.getElementById('modalidad').value,
+      lugar: document.getElementById('lugar').value,
+      fecha: document.getElementById('fecha').value,
+      horaInicio: document.getElementById('horaInicio').value,
+      horaFin: document.getElementById('horaFin').value,
+      agenda: getDynamicValues('agenda-container'),
+      acuerdos: getAcuerdosSimples(),
+      compromisos: getCompromisosValues(),
+      asistentes: asistentes,
+      fotos: fotosBase64
+    };
+  }
+
+  // ================= VISTA PREVIA DEL PDF =================
+  var vistaPrevia = { numeroActa: '---', logo: '', timer: null, cargada: false };
+
+  function cargarDatosVistaPrevia() {
+    if (vistaPrevia.cargada) { actualizarVistaPrevia(); return; }
+    google.script.run.withSuccessHandler(function(res) {
+      if (res && res.success) {
+        vistaPrevia.numeroActa = res.numeroActa;
+        vistaPrevia.logo = res.logo;
+        vistaPrevia.cargada = true;
+      }
+      actualizarVistaPrevia();
+    }).withFailureHandler(function() { actualizarVistaPrevia(); })
+      .obtenerDatosVistaPrevia(currentToken);
+  }
+
+  function programarVistaPrevia() {
+    clearTimeout(vistaPrevia.timer);
+    vistaPrevia.timer = setTimeout(actualizarVistaPrevia, 350);
+  }
+
+  function dosDigitos(n) { return ('0' + n).slice(-2); }
+
+  function actualizarVistaPrevia() {
+    var frame = document.getElementById('vista-frame');
+    if (!frame || typeof construirHtmlActa !== 'function') return;
+    var datos = recolectarDatosActa();
+    var now = new Date();
+    var fechaEmision = dosDigitos(now.getDate()) + '/' + dosDigitos(now.getMonth() + 1) + '/' + now.getFullYear();
+    var idActa = 'ACTA N° ' + vistaPrevia.numeroActa + '-' + now.getFullYear() + '-OR-OGPL/UNMSM';
+    var html = construirHtmlActa(datos, {
+      numeroActa: vistaPrevia.numeroActa,
+      anio: now.getFullYear(),
+      fechaEmision: fechaEmision,
+      qrUrl: 'https://quickchart.io/qr?size=120&text=' + encodeURIComponent('Documento Original SIGA. ' + idActa + ' Fecha: ' + fechaEmision),
+      logo: vistaPrevia.logo,
+      fechaFirma: dosDigitos(now.getDate()) + '/' + dosDigitos(now.getMonth() + 1) + '/' + String(now.getFullYear()).slice(-2),
+      horaFirma: dosDigitos(now.getHours()) + ':' + dosDigitos(now.getMinutes()) + ':' + dosDigitos(now.getSeconds()),
+      fechasLimite: datos.compromisos.map(function(co) {
+        var f = calcularFechaLimite(now, co.plazo, co.unidad);
+        return f ? fechaEmisionDe(f) + ' ' + dosDigitos(f.getHours()) + ':' + dosDigitos(f.getMinutes()) : '';
+      })
+    });
+    // En pantalla se simula la hoja A4: el ancho y los márgenes que en el PDF pone @page
+    html = html.replace('</style>',
+      'html{background:#fff}body{width:210mm;padding:12mm 16mm 10mm 16mm}' +
+      '.content{display:flex;flex-direction:column;min-height:calc(297mm - 22mm)}' +
+      '.footer{position:static;margin-top:auto}' +
+      '.page-break{margin:12mm -16mm;border-top:2px dashed #cbd5e0}</style>');
+    var scroll = document.getElementById('vista-hoja').scrollTop;
+    frame.onload = function() { ajustarVistaPrevia(); document.getElementById('vista-hoja').scrollTop = scroll; };
+    frame.srcdoc = html;
+  }
+
+  function fechaEmisionDe(f) { return dosDigitos(f.getDate()) + '/' + dosDigitos(f.getMonth() + 1) + '/' + f.getFullYear(); }
+
+  function ajustarVistaPrevia() {
+    var frame = document.getElementById('vista-frame');
+    var hoja = document.getElementById('vista-hoja');
+    if (!frame.contentDocument || !frame.contentDocument.body) return;
+    var anchoA4 = frame.offsetWidth;
+    var escala = Math.min(1, (hoja.clientWidth - 2) / anchoA4);
+    var alto = frame.contentDocument.documentElement.scrollHeight;
+    frame.style.height = alto + 'px';
+    frame.style.transform = 'scale(' + escala + ')';
+    frame.style.marginBottom = (alto * (escala - 1)) + 'px';
+  }
+
+  window.addEventListener('resize', function() { ajustarVistaPrevia(); });
+
+  (function engancharVistaPrevia() {
+    var form = document.querySelector('.acta-form');
+    ['input', 'change'].forEach(function(ev) { form.addEventListener(ev, programarVistaPrevia); });
+    // Botones que agregan o quitan filas, asistentes o fotos
+    form.addEventListener('click', function(e) { if (e.target.closest('button')) programarVistaPrevia(); });
+  })();
 
   function reiniciarTodo() {
     document.getElementById('tema').value = '';
@@ -983,6 +1109,7 @@
     document.getElementById('photo-preview').innerHTML = '';
     document.getElementById('foto-input').value = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    actualizarVistaPrevia();
   }
 
   // ================= DASHBOARD CORREGIDO =================
