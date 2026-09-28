@@ -275,12 +275,16 @@ function construirHtmlActa(datos, ctx) {
     '.asistentes { width: 100%; border-collapse: collapse; margin-bottom: 7mm; font-size: 9.3pt; }' +
     '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
     '.asistentes td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: middle; }' +
-    '.asistentes td.contacto { font-size: 7.6pt; color: var(--gris-suave); word-break: break-all; }' +
     '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
-    '.asistentes td.firma { text-align: center; width: 54mm; padding: 2px; }' +
-    '.asistentes td.firma .sello { display: inline-flex; align-items: center; gap: 1.8mm; font-size: 6.3pt; line-height: 1.55; color: #333333; text-align: left; white-space: nowrap; }' +
-    '.asistentes td.firma .sello img { width: 11mm; height: auto; flex-shrink: 0; }' +
-    '.asistentes td.firma .sello b { font-size: 6.7pt; color: #1a1a1a; }' +
+    '.asistentes td.firma { text-align: left; width: 64mm; padding: 2mm 3mm; }' +
+    // Sello de firma digital: tabla de 2 columnas (no flexbox) para que el
+    // conversor de Apps Script a PDF alinee el escudo con el texto siempre.
+    '.asistentes td.firma table.sello { width: 100%; border-collapse: collapse; }' +
+    '.asistentes td.firma table.sello td { border: none; padding: 0; vertical-align: middle; }' +
+    '.asistentes td.firma table.sello td.sello-img { width: 13mm; padding-right: 2.5mm; }' +
+    '.asistentes td.firma table.sello td.sello-img img { width: 12mm; height: auto; display: block; }' +
+    '.asistentes td.firma table.sello td.sello-txt { font-size: 7.8pt; line-height: 1.5; color: #333333; text-align: left; }' +
+    '.asistentes td.firma table.sello td.sello-txt b { font-size: 8.6pt; color: #1a1a1a; }' +
     '.asistentes td.firma img.firma-img { max-height: 40px; max-width: 100%; display: block; margin: auto; }' +
     '.agenda-list { margin: 0 0 7mm 0; padding: 0; list-style: none; }' +
     '.agenda-list li { display: flex; align-items: center; gap: 3mm; padding: 2.8mm 0; border-bottom: 0.5pt dashed var(--linea); font-size: 10pt; }' +
@@ -335,8 +339,7 @@ function construirHtmlActa(datos, ctx) {
     '<th style="width:8mm;">N°</th>' +
     '<th>Nombre y apellidos</th>' +
     '<th style="width:30mm;">Cargo / Unidad</th>' +
-    '<th style="width:36mm;">Contacto</th>' +
-    '<th style="width:54mm;">Firma</th>' +
+    '<th style="width:64mm;">Firma</th>' +
     '</tr>';
   
   datos.asistentes.forEach(function(asis, index) {
@@ -347,14 +350,14 @@ function construirHtmlActa(datos, ctx) {
       var fechaStr = ctx.fechaFirma;
       var horaStr = ctx.horaFirma;
 
-      firmaContent = '<span class="sello">' +
-                     '<img src="' + ctx.logo + '" alt="">' +
-                     '<span>' +
+      firmaContent = '<table class="sello"><tr>' +
+                     '<td class="sello-img"><img src="' + ctx.logo + '" alt=""></td>' +
+                     '<td class="sello-txt">' +
                      'Firmado digitalmente por<br>' +
                      '<b>' + apellidosMayus + ' ' + nombresCap + '</b><br>' +
                      'Motivo: Soy el Autor de la Firma<br>' +
                      'Fecha: ' + fechaStr + ' Hora: ' + horaStr +
-                     '</span></span>';
+                     '</td></tr></table>';
     } else if (asis.firma) {
       firmaContent = '<img class="firma-img" src="' + asis.firma + '" alt="Firma"/>';
     }
@@ -363,7 +366,6 @@ function construirHtmlActa(datos, ctx) {
       '<td class="n">' + (index + 1) + '</td>' +
       '<td>' + asis.nombres + ' ' + asis.apellidos + '</td>' +
       '<td style="text-align:center;">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
-      '<td class="contacto">' + (asis.celular || '') + (asis.celular && asis.correo ? '<br>' : '') + (asis.correo || '') + '</td>' +
       '<td class="firma">' + firmaContent + '</td></tr>';
   });
   htmlStr += '</table>';
