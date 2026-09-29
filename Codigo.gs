@@ -361,7 +361,7 @@ function construirHtmlActa(datos, ctx) {
     '<thead><tr>' +
     '<th style="width:8mm;">N°</th>' +
     '<th>Nombre y apellidos</th>' +
-    '<th style="width:30mm;">Cargo / Unidad</th>' +
+    '<th style="width:36mm;">Cargo / Unidad</th>' +
     '<th style="width:64mm;">Firma</th>' +
     '</tr></thead>';
   
@@ -388,7 +388,7 @@ function construirHtmlActa(datos, ctx) {
     htmlStr += '<tbody><tr>' +
       '<td class="n">' + (index + 1) + '</td>' +
       '<td>' + asis.nombres + ' ' + asis.apellidos + '</td>' +
-      '<td style="text-align:center;">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
+      '<td style="text-align:center;">' + asis.cargo + ' - ' + asis.unidad + '</td>' +
       '<td class="firma">' + firmaContent + '</td></tr></tbody>';
   });
   htmlStr += '</table>';
