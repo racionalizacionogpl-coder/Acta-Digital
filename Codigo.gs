@@ -160,6 +160,7 @@ function doGet() {
   plantilla.codigoCompartido =
     'var FERIADOS_PERU = ' + JSON.stringify(FERIADOS_PERU) + ';\n' +
     calcularFechaLimite.toString() + '\n' +
+    formatearFechaActa.toString() + '\n' +
     construirHtmlActa.toString();
   return plantilla.evaluate()
     .setTitle('Sistema de Actas de Reunión - OGPL UNMSM')
@@ -231,6 +232,16 @@ function crearUsuario(datos, token) {
  *
  * ctx: { numeroActa, anio, fechaEmision, qrUrl, logo, fechaFirma, horaFirma, fechasLimite[] }
  */
+/**
+ * El <input type="date"> del formulario entrega AAAA-MM-DD; el acta
+ * siempre se muestra en DD/MM/AAAA. Función pura: la comparte doGet()
+ * con el navegador para que la vista previa y el PDF coincidan.
+ */
+function formatearFechaActa(fecha) {
+  var m = String(fecha || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[3] + '/' + m[2] + '/' + m[1] : String(fecha || '');
+}
+
 function construirHtmlActa(datos, ctx) {
   var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
     '<style>' +
@@ -238,7 +249,10 @@ function construirHtmlActa(datos, ctx) {
     '* { box-sizing: border-box; }' +
     'html, body {' +
     '  margin: 0; padding: 0 0 6mm 0;' +
-    '  font-family: Georgia, "Times New Roman", serif;' +
+    // De "Tema" hacia abajo el acta va en Arial; los encabezados (membrete,
+    // título y las franjas de sección) recuperan la serif institucional
+    // con la regla .encabezado de más abajo.
+    '  font-family: Arial, Helvetica, sans-serif;' +
     '  color: #2e2e2e;' +
     '  background: #ffffff;' +
     '  -webkit-print-color-adjust: exact !important;' +
@@ -255,6 +269,7 @@ function construirHtmlActa(datos, ctx) {
     '}' +
     '.watermark { position: fixed; top: 44%; left: 50%; width: 120mm; transform: translate(-50%, -50%); opacity: 0.05; z-index: 0; pointer-events: none; }' +
     '.content { position: relative; z-index: 1; }' +
+    '.header, .title-band, .acta-code, .section-title { font-family: Georgia, "Times New Roman", serif; }' +
     '.header { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8mm; padding-bottom: 5mm; border-bottom: 0.7pt solid var(--linea); text-align: center; }' +
     '.header img.escudo { width: 19mm; height: auto; flex-shrink: 0; order: 1; }' +
     '.header-text { text-align: center; order: 2; flex: 1; }' +
@@ -271,7 +286,7 @@ function construirHtmlActa(datos, ctx) {
     '.info-table td { padding: 3mm; vertical-align: top; }' +
     '.info-table td.label { width: 36mm; font-weight: bold; color: var(--principal); text-transform: uppercase; font-size: 8.3pt; letter-spacing: 0.3pt; }' +
     '.info-table td.value { color: var(--gris-texto); }' +
-    '.section-title { font-size: 9.5pt; font-weight: bold; color: #ffffff; background: var(--principal); text-transform: uppercase; letter-spacing: 0.6pt; padding: 2.3mm 4mm; margin: 0 0 4mm 0; border-radius: 1.2pt; }' +
+    '.section-title { font-size: 9.5pt; font-weight: bold; color: #ffffff; background: var(--principal); text-transform: uppercase; letter-spacing: 0.6pt; padding: 2.3mm 4mm; margin: 0 0 4mm 0; border-radius: 1.2pt; page-break-after: avoid; break-after: avoid-page; }' +
     '.asistentes { width: 100%; border-collapse: collapse; margin-bottom: 7mm; font-size: 9.3pt; }' +
     '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
     '.asistentes td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: middle; }' +
@@ -327,7 +342,7 @@ function construirHtmlActa(datos, ctx) {
     '<table class="info-table">' +
     '<tr><td class="label">Tema</td><td class="value">' + datos.tema + '</td></tr>' +
     '<tr><td class="label">Modalidad</td><td class="value">' + datos.modalidad + '</td></tr>' +
-    '<tr><td class="label">Fecha</td><td class="value">' + datos.fecha + '</td></tr>' +
+    '<tr><td class="label">Fecha</td><td class="value">' + formatearFechaActa(datos.fecha) + '</td></tr>' +
     '<tr><td class="label">Lugar de reunión</td><td class="value">' + datos.lugar + '</td></tr>' +
     '<tr><td class="label">Horario</td><td class="value">' + datos.horaInicio + ' &ndash; ' + datos.horaFin + '</td></tr>' +
     '</table>' +
