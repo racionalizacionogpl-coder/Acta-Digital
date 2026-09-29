@@ -245,7 +245,14 @@ function formatearFechaActa(fecha) {
 function construirHtmlActa(datos, ctx) {
   var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
     '<style>' +
-    '@page { size: A4; margin: 12mm 16mm 26mm 16mm; @bottom-right { content: "P\u00e1g. " counter(page) " de " counter(pages); font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-weight: bold; color: #1f3a5f; border: 0.6pt solid #dcdcdc; padding: 1mm 3mm; width: 26mm; height: 6mm; margin: 0 0 4mm 0; text-align: center; } }' +
+    // Pie de página repetido en cada hoja mediante margin boxes de @page (no
+    // position:fixed): así vive de verdad dentro del margen reservado y nunca
+    // se superpone con la última fila de una tabla que cae cerca del borde.
+    '@page { size: A4; margin: 12mm 16mm 30mm 16mm;' +
+    '  @bottom-left { content: url(' + ctx.qrUrl + '); width: 16mm; height: 16mm; }' +
+    '  @bottom-center { content: "Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). Este documento es original y tiene validez conforme a la normativa vigente.\\A Oficina de Racionalización / Oficina General de Planificación \u2013 UNMSM. Fecha de emisión: ' + ctx.fechaEmision + '."; font-family: Arial, Helvetica, sans-serif; font-size: 7.3pt; color: #6b6b6b; white-space: pre-line; width: 145mm; line-height: 1.5; }' +
+    '  @bottom-right { content: "Pág. " counter(page) " de " counter(pages); font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-weight: bold; color: #1f3a5f; border: 0.6pt solid #dcdcdc; padding: 1mm 3mm; width: 26mm; height: 6mm; text-align: center; }' +
+    '}' +
     '* { box-sizing: border-box; }' +
     'html, body {' +
     '  margin: 0; padding: 0 0 6mm 0;' +
@@ -287,34 +294,34 @@ function construirHtmlActa(datos, ctx) {
     '.info-table td.label { width: 36mm; font-weight: bold; color: var(--principal); text-transform: uppercase; font-size: 8.3pt; letter-spacing: 0.3pt; }' +
     '.info-table td.value { color: var(--gris-texto); }' +
     '.section-title { font-size: 9.5pt; font-weight: bold; color: #ffffff; background: var(--principal); text-transform: uppercase; letter-spacing: 0.6pt; padding: 2.3mm 4mm; margin: 0 0 4mm 0; border-radius: 1.2pt; page-break-after: avoid; break-after: avoid-page; }' +
-    '.asistentes { width: 100%; border-collapse: collapse; margin-bottom: 7mm; font-size: 9.3pt; }' +
+    '.asistentes { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 7mm; font-size: 9.3pt; }' +
     '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
     '.asistentes td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: middle; }' +
+    '.asistentes tr { page-break-inside: avoid; break-inside: avoid-page; }' +
     '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
     '.asistentes td.firma { text-align: left; width: 64mm; padding: 2mm 3mm; }' +
     // Sello de firma digital: tabla de 2 columnas (no flexbox) para que el
     // conversor de Apps Script a PDF alinee el escudo con el texto siempre.
-    '.asistentes td.firma table.sello { width: 100%; border-collapse: collapse; }' +
-    '.asistentes td.firma table.sello td { border: none; padding: 0; vertical-align: middle; }' +
-    '.asistentes td.firma table.sello td.sello-img { width: 13mm; padding-right: 2.5mm; }' +
-    '.asistentes td.firma table.sello td.sello-img img { width: 12mm; height: auto; display: block; }' +
-    '.asistentes td.firma table.sello td.sello-txt { font-size: 7.8pt; line-height: 1.5; color: #333333; text-align: left; }' +
-    '.asistentes td.firma table.sello td.sello-txt b { font-size: 8.6pt; color: #1a1a1a; }' +
+    // Sin tabla anidada (rompía el corte de página de la fila) ni flexbox
+    // (desalineaba el sello en el conversor a PDF): imagen y texto van
+    // inline-block con vertical-align:middle, la técnica más compatible.
+    '.asistentes td.firma .sello { display: block; }' +
+    '.asistentes td.firma .sello img { width: 12mm; height: auto; display: inline-block; vertical-align: middle; margin-right: 2.5mm; }' +
+    '.asistentes td.firma .sello .sello-txt { display: inline-block; vertical-align: middle; width: 42mm; font-size: 7.8pt; line-height: 1.5; color: #333333; text-align: left; }' +
+    '.asistentes td.firma .sello .sello-txt b { font-size: 8.6pt; color: #1a1a1a; }' +
     '.asistentes td.firma img.firma-img { max-height: 40px; max-width: 100%; display: block; margin: auto; }' +
     '.agenda-list { margin: 0 0 7mm 0; padding: 0; list-style: none; }' +
     '.agenda-list li { display: flex; align-items: center; gap: 3mm; padding: 2.8mm 0; border-bottom: 0.5pt dashed var(--linea); font-size: 10pt; }' +
     '.agenda-list li:last-child { border-bottom: none; }' +
     '.agenda-list .idx { flex-shrink: 0; width: 6.5mm; height: 6.5mm; border-radius: 50%; background: var(--principal); color: #fff; font-size: 8.5pt; font-weight: bold; display: flex; align-items: center; justify-content: center; }' +
-    '.registro-table { width: 100%; border-collapse: collapse; margin-bottom: 7mm; font-size: 9.3pt; }' +
+    '.registro-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 7mm; font-size: 9.3pt; }' +
     '.registro-table th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
     '.registro-table td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: top; }' +
+    '.registro-table tr { page-break-inside: avoid; break-inside: avoid-page; }' +
     '.registro-table td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
     '.anexo-titulo { text-align: center; font-size: 12pt; font-weight: bold; color: var(--principal-oscuro); text-transform: uppercase; letter-spacing: 0.5pt; border-bottom: 0.7pt solid var(--linea); padding-bottom: 3mm; margin: 0 0 6mm 0; }' +
     '.foto-container { width: 48%; display: inline-block; margin: 1%; text-align: center; border: 0.6pt solid var(--linea); padding: 5px; box-sizing: border-box; vertical-align: top; }' +
     '.page-break { page-break-before: always; }' +
-    '.footer { position: fixed; bottom: 0; left: 0; right: 0; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; background: #ffffff; }' +
-    '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
-    '.footer .txt { flex: 1; }' +
     '</style></head><body>' +
 
     '<img class="watermark" src="' + ctx.logo + '" alt="">' +
@@ -349,12 +356,12 @@ function construirHtmlActa(datos, ctx) {
     // PARTICIPANTES
     '<div class="section-title">Participantes</div>' +
     '<table class="asistentes">' +
-    '<tr>' +
+    '<thead><tr>' +
     '<th style="width:8mm;">N°</th>' +
     '<th>Nombre y apellidos</th>' +
     '<th style="width:30mm;">Cargo / Unidad</th>' +
     '<th style="width:64mm;">Firma</th>' +
-    '</tr>';
+    '</tr></thead>';
   
   datos.asistentes.forEach(function(asis, index) {
     var firmaContent = '';
@@ -364,23 +371,23 @@ function construirHtmlActa(datos, ctx) {
       var fechaStr = ctx.fechaFirma;
       var horaStr = ctx.horaFirma;
 
-      firmaContent = '<table class="sello"><tr>' +
-                     '<td class="sello-img"><img src="' + ctx.logo + '" alt=""></td>' +
-                     '<td class="sello-txt">' +
+      firmaContent = '<span class="sello">' +
+                     '<img src="' + ctx.logo + '" alt="">' +
+                     '<span class="sello-txt">' +
                      'Firmado digitalmente por<br>' +
                      '<b>' + apellidosMayus + ' ' + nombresCap + '</b><br>' +
                      'Motivo: Soy el Autor de la Firma<br>' +
                      'Fecha: ' + fechaStr + ' Hora: ' + horaStr +
-                     '</td></tr></table>';
+                     '</span></span>';
     } else if (asis.firma) {
       firmaContent = '<img class="firma-img" src="' + asis.firma + '" alt="Firma"/>';
     }
 
-    htmlStr += '<tr>' +
+    htmlStr += '<tbody><tr>' +
       '<td class="n">' + (index + 1) + '</td>' +
       '<td>' + asis.nombres + ' ' + asis.apellidos + '</td>' +
       '<td style="text-align:center;">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
-      '<td class="firma">' + firmaContent + '</td></tr>';
+      '<td class="firma">' + firmaContent + '</td></tr></tbody>';
   });
   htmlStr += '</table>';
 
@@ -396,17 +403,17 @@ function construirHtmlActa(datos, ctx) {
   if (datos.acuerdos.length > 0) {
     htmlStr += '<div class="section-title">Acuerdos</div>' +
       '<table class="registro-table">' +
-      '<tr>' +
+      '<thead><tr>' +
       '<th style="width:8mm;">N°</th>' +
       '<th>Acuerdo</th>' +
       '<th style="width:40mm;">Responsable</th>' +
-      '</tr>';
+      '</tr></thead>';
     datos.acuerdos.forEach(function(ac, idx) {
-      htmlStr += '<tr>' +
+      htmlStr += '<tbody><tr>' +
         '<td class="n">' + (idx + 1) + '</td>' +
         '<td>' + ac.texto + '</td>' +
         '<td>' + ac.responsable + '</td>' +
-        '</tr>';
+        '</tr></tbody>';
     });
     htmlStr += '</table>';
   }
@@ -415,23 +422,23 @@ function construirHtmlActa(datos, ctx) {
   if (datos.compromisos.length > 0) {
     htmlStr += '<div class="section-title">Compromisos</div>' +
       '<table class="registro-table">' +
-      '<tr>' +
+      '<thead><tr>' +
       '<th style="width:8mm;">N°</th>' +
       '<th>Compromiso</th>' +
       '<th style="width:32mm;">Responsable</th>' +
       '<th style="width:22mm;">Plazo</th>' +
       '<th style="width:30mm;">Fecha límite</th>' +
-      '</tr>';
+      '</tr></thead>';
 
     datos.compromisos.forEach(function(co, idx) {
       var fStr = ctx.fechasLimite[idx] || '&mdash;';
-      htmlStr += '<tr>' +
+      htmlStr += '<tbody><tr>' +
         '<td class="n">' + (idx + 1) + '</td>' +
         '<td>' + co.texto + '</td>' +
         '<td>' + co.responsable + '</td>' +
         '<td>' + co.plazo + ' ' + co.unidad + '</td>' +
         '<td>' + fStr + '</td>' +
-        '</tr>';
+        '</tr></tbody>';
     });
     htmlStr += '</table>';
   }
@@ -450,17 +457,8 @@ function construirHtmlActa(datos, ctx) {
     htmlStr += '</div>';
   }
   
-  // PIE DE PÁGINA (Con QR dinámico)
-  htmlStr += '<div class="footer">' +
-    '<img class="qr" src="' + ctx.qrUrl + '" alt="Código QR de verificación">' +
-    '<div class="txt">' +
-    'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). Este documento es ' +
-    'original y tiene validez conforme a la normativa vigente.<br>' +
-    'Oficina de Racionalización / Oficina General de Planificación &ndash; UNMSM. Fecha de emisión: ' + ctx.fechaEmision + '.' +
-    '</div>' +
-    '</div>' +
-
-    '</div></body></html>';
+  // El pie ya no se imprime aquí: sale de las margin boxes de @page (arriba).
+  htmlStr += '</div></body></html>';
 
   return htmlStr;
 }
