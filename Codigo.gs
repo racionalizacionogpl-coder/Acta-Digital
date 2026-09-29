@@ -307,7 +307,7 @@ function construirHtmlActa(datos, ctx) {
     '.asistentes tr { page-break-inside: avoid; break-inside: avoid-page; }' +
     '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
     '.asistentes td.cu { text-align: center; font-size: 8pt; line-height: 1.3; }' +
-    '.asistentes td.firma { text-align: left; width: 66mm; padding: 1.2mm 2.5mm; }' +
+    '.asistentes td.firma { text-align: left; width: 58mm; padding: 1.2mm 2.5mm; }' +
     // Sello de firma digital: imagen y texto van inline-block con
     // vertical-align:middle (sin tabla anidada ni flexbox), la técnica más
     // compatible con el conversor de Apps Script a PDF.
@@ -378,9 +378,9 @@ function construirHtmlActa(datos, ctx) {
     return '<table class="asistentes">' +
       '<thead><tr>' +
       '<th style="width:8mm;">N°</th>' +
-      '<th style="width:42mm;">Nombre y apellidos</th>' +
+      '<th style="width:48mm;">Nombre y apellidos</th>' +
       '<th style="width:32mm;">Cargo / Unidad</th>' +
-      '<th style="width:66mm;">Firma</th>' +
+      '<th style="width:58mm;">Firma</th>' +
       '</tr></thead><tbody>';
   }
   function construirPiePagina(ctx) {
