@@ -430,7 +430,9 @@ function construirHtmlActa(datos, ctx) {
       '<td class="cu">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
       '<td class="firma">' + firmaContent + '</td></tr>';
   });
-  htmlStr += '</tbody></table>';
+  // Sin este cierre la agenda desborda la hoja de participantes y su pie se va a la siguiente
+  htmlStr += '</tbody></table>' + construirPiePagina(ctx) + '</div>' +
+    '<div class="page-break"></div><div class="pagina">';
 
   // AGENDA
   htmlStr += '<div class="section-title">Agenda tratada</div>' +
