@@ -245,12 +245,13 @@ function formatearFechaActa(fecha) {
 function construirHtmlActa(datos, ctx) {
   var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
     '<style>' +
-    // El pie certificador va en flujo normal, al final de todo el documento
-    // (no position:fixed ni margin boxes de @page): esas dos técnicas se
-    // comportan distinto en el conversor real de Apps Script (deforman el QR,
-    // cortan texto o tapan la última fila de la tabla de participantes). En
-    // flujo normal el pie nunca se superpone con nada, al costo de aparecer
-    // una sola vez, al final de la última página, en vez de repetirse.
+    // El documento se pagina a mano: cada hoja es un <div class="pagina">
+    // de alto fijo (position:relative) y el pie se ancla a su base con
+    // position:absolute (nunca position:fixed ni margin boxes de @page:
+    // ambas técnicas se probaron y el conversor real de Apps Script las
+    // renderiza distinto a Chrome — deforman el QR, cortan texto o tapan
+    // la última fila). position:absolute dentro de un bloque de tamaño
+    // conocido es CSS mucho más antiguo y compatible.
     '@page { size: A4; margin: 12mm 16mm 12mm 16mm; }' +
     '* { box-sizing: border-box; }' +
     'html, body {' +
@@ -275,6 +276,10 @@ function construirHtmlActa(datos, ctx) {
     '}' +
     '.watermark { position: fixed; top: 44%; left: 50%; width: 120mm; transform: translate(-50%, -50%); opacity: 0.05; z-index: 0; pointer-events: none; }' +
     '.content { position: relative; z-index: 1; }' +
+    // Una .pagina por hoja física: alto fijo para que el pie, anclado con
+    // position:absolute a su base, quede pegado al borde inferior real y
+    // no floteando donde termina el contenido.
+    '.pagina { position: relative; min-height: 260mm; padding-bottom: 22mm; }' +
     '.header, .title-band, .acta-code, .section-title { font-family: Georgia, "Times New Roman", serif; }' +
     '.header { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 8mm; padding-bottom: 5mm; border-bottom: 0.7pt solid var(--linea); text-align: center; }' +
     '.header img.escudo { width: 19mm; height: auto; flex-shrink: 0; order: 1; }' +
@@ -293,7 +298,7 @@ function construirHtmlActa(datos, ctx) {
     '.info-table td.label { width: 36mm; font-weight: bold; color: var(--principal); text-transform: uppercase; font-size: 8.3pt; letter-spacing: 0.3pt; }' +
     '.info-table td.value { color: var(--gris-texto); }' +
     '.section-title { font-size: 9.5pt; font-weight: bold; color: #ffffff; background: var(--principal); text-transform: uppercase; letter-spacing: 0.6pt; padding: 2.3mm 4mm; margin: 0 0 4mm 0; border-radius: 1.2pt; page-break-after: avoid; break-after: avoid-page; }' +
-    '.footer { margin-top: 8mm; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; }' +
+    '.footer { position: absolute; left: 0; right: 0; bottom: 0; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; background: #ffffff; }' +
     '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
     '.footer .txt { flex: 1; }' +
     '.asistentes { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 5mm; font-size: 8.6pt; }' +
@@ -302,7 +307,7 @@ function construirHtmlActa(datos, ctx) {
     '.asistentes tr { page-break-inside: avoid; break-inside: avoid-page; }' +
     '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
     '.asistentes td.cu { text-align: center; font-size: 8pt; line-height: 1.3; }' +
-    '.asistentes td.firma { text-align: left; width: 56mm; padding: 1.2mm 2.5mm; }' +
+    '.asistentes td.firma { text-align: left; width: 66mm; padding: 1.2mm 2.5mm; }' +
     // Sello de firma digital: imagen y texto van inline-block con
     // vertical-align:middle (sin tabla anidada ni flexbox), la técnica más
     // compatible con el conversor de Apps Script a PDF.
@@ -327,6 +332,7 @@ function construirHtmlActa(datos, ctx) {
 
     '<img class="watermark" src="' + ctx.logo + '" alt="">' +
     '<div class="content">' +
+    '<div class="pagina">' +
 
     // MEMBRETE (escudo + texto institucional)
     '<div class="header">' +
@@ -372,9 +378,9 @@ function construirHtmlActa(datos, ctx) {
     return '<table class="asistentes">' +
       '<thead><tr>' +
       '<th style="width:8mm;">N°</th>' +
-      '<th>Nombre y apellidos</th>' +
+      '<th style="width:42mm;">Nombre y apellidos</th>' +
       '<th style="width:32mm;">Cargo / Unidad</th>' +
-      '<th style="width:56mm;">Firma</th>' +
+      '<th style="width:66mm;">Firma</th>' +
       '</tr></thead><tbody>';
   }
   function construirPiePagina(ctx) {
@@ -393,8 +399,9 @@ function construirHtmlActa(datos, ctx) {
   var proximoCorte = FILAS_PRIMERA_HOJA;
   datos.asistentes.forEach(function(asis, index) {
     if (index > 0 && index === proximoCorte) {
-      htmlStr += '</tbody></table>' + construirPiePagina(ctx) +
-        '<div class="page-break"></div>' + construirTablaAsistentes();
+      // Cierra la hoja actual (tabla + pie pegado a su base) y abre la siguiente
+      htmlStr += '</tbody></table>' + construirPiePagina(ctx) + '</div>' +
+        '<div class="page-break"></div><div class="pagina">' + construirTablaAsistentes();
       proximoCorte += FILAS_SIGUIENTES_HOJAS;
     }
 
@@ -477,9 +484,10 @@ function construirHtmlActa(datos, ctx) {
     htmlStr += '</table>';
   }
 
-  // EVIDENCIAS FOTOGRÁFICAS
+  // EVIDENCIAS FOTOGRÁFICAS (en su propia hoja, con su propio pie)
   if (datos.fotos && datos.fotos.length > 0) {
-    htmlStr += '<div class="page-break"></div>' +
+    htmlStr += construirPiePagina(ctx) + '</div>' +
+      '<div class="page-break"></div><div class="pagina">' +
       '<div class="anexo-titulo">Anexo fotográfico de la reunión</div>' +
       '<div style="width: 100%;">';
     datos.fotos.forEach(function(foto, idx) {
@@ -490,9 +498,9 @@ function construirHtmlActa(datos, ctx) {
     });
     htmlStr += '</div>';
   }
-  
-  // PIE DE PÁGINA final (los intermedios ya se imprimieron dentro de la tabla de participantes)
-  htmlStr += construirPiePagina(ctx);
+
+  // Cierra la última hoja (pie pegado a su base + fin del contenedor .pagina)
+  htmlStr += construirPiePagina(ctx) + '</div>';
 
   htmlStr += '</div></body></html>';
 
