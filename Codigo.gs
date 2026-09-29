@@ -301,13 +301,13 @@ function construirHtmlActa(datos, ctx) {
     '.footer { position: absolute; left: 0; right: 0; bottom: 0; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; background: #ffffff; }' +
     '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
     '.footer .txt { flex: 1; }' +
-    '.asistentes { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 5mm; font-size: 8.6pt; }' +
+    '.asistentes { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; margin-bottom: 5mm; font-size: 8.6pt; }' +
     '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 1.8mm 2.5mm; text-align: left; color: var(--principal-oscuro); font-size: 7.8pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
     '.asistentes td { border: 0.6pt solid var(--linea); padding: 1.6mm 2.5mm; vertical-align: middle; }' +
     '.asistentes tr { page-break-inside: avoid; break-inside: avoid-page; }' +
     '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
     '.asistentes td.cu { text-align: center; font-size: 8pt; line-height: 1.3; }' +
-    '.asistentes td.firma { text-align: left; width: 58mm; padding: 1.2mm 2.5mm; }' +
+    '.asistentes td.firma { text-align: left; width: 60mm; padding: 1.2mm 2.5mm; overflow: hidden; }' +
     // Sello de firma digital: imagen y texto van inline-block con
     // vertical-align:middle (sin tabla anidada ni flexbox), la técnica más
     // compatible con el conversor de Apps Script a PDF.
@@ -378,9 +378,9 @@ function construirHtmlActa(datos, ctx) {
     return '<table class="asistentes">' +
       '<thead><tr>' +
       '<th style="width:8mm;">N°</th>' +
-      '<th style="width:48mm;">Nombre y apellidos</th>' +
+      '<th style="width:76mm;">Nombre y apellidos</th>' +
       '<th style="width:32mm;">Cargo / Unidad</th>' +
-      '<th style="width:58mm;">Firma</th>' +
+      '<th style="width:60mm;">Firma</th>' +
       '</tr></thead><tbody>';
   }
   function construirPiePagina(ctx) {
