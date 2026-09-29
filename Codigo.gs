@@ -245,14 +245,13 @@ function formatearFechaActa(fecha) {
 function construirHtmlActa(datos, ctx) {
   var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
     '<style>' +
-    // Pie de página repetido en cada hoja mediante margin boxes de @page (no
-    // position:fixed): así vive de verdad dentro del margen reservado y nunca
-    // se superpone con la última fila de una tabla que cae cerca del borde.
-    '@page { size: A4; margin: 12mm 16mm 30mm 16mm;' +
-    '  @bottom-left { content: url(' + ctx.qrUrl + '); width: 16mm; height: 16mm; }' +
-    '  @bottom-center { content: "Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). Este documento es original y tiene validez conforme a la normativa vigente.\\A Oficina de Racionalización / Oficina General de Planificación \u2013 UNMSM. Fecha de emisión: ' + ctx.fechaEmision + '."; font-family: Arial, Helvetica, sans-serif; font-size: 7.3pt; color: #6b6b6b; white-space: pre-line; width: 145mm; line-height: 1.5; }' +
-    '  @bottom-right { content: "Pág. " counter(page) " de " counter(pages); font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-weight: bold; color: #1f3a5f; border: 0.6pt solid #dcdcdc; padding: 1mm 3mm; width: 26mm; height: 6mm; text-align: center; }' +
-    '}' +
+    // El pie certificador va en flujo normal, al final de todo el documento
+    // (no position:fixed ni margin boxes de @page): esas dos técnicas se
+    // comportan distinto en el conversor real de Apps Script (deforman el QR,
+    // cortan texto o tapan la última fila de la tabla de participantes). En
+    // flujo normal el pie nunca se superpone con nada, al costo de aparecer
+    // una sola vez, al final de la última página, en vez de repetirse.
+    '@page { size: A4; margin: 12mm 16mm 12mm 16mm; }' +
     '* { box-sizing: border-box; }' +
     'html, body {' +
     '  margin: 0; padding: 0 0 6mm 0;' +
@@ -294,6 +293,9 @@ function construirHtmlActa(datos, ctx) {
     '.info-table td.label { width: 36mm; font-weight: bold; color: var(--principal); text-transform: uppercase; font-size: 8.3pt; letter-spacing: 0.3pt; }' +
     '.info-table td.value { color: var(--gris-texto); }' +
     '.section-title { font-size: 9.5pt; font-weight: bold; color: #ffffff; background: var(--principal); text-transform: uppercase; letter-spacing: 0.6pt; padding: 2.3mm 4mm; margin: 0 0 4mm 0; border-radius: 1.2pt; page-break-after: avoid; break-after: avoid-page; }' +
+    '.footer { margin-top: 8mm; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; }' +
+    '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
+    '.footer .txt { flex: 1; }' +
     '.asistentes { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 7mm; font-size: 9.3pt; }' +
     '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
     '.asistentes td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: middle; }' +
@@ -457,7 +459,16 @@ function construirHtmlActa(datos, ctx) {
     htmlStr += '</div>';
   }
   
-  // El pie ya no se imprime aquí: sale de las margin boxes de @page (arriba).
+  // PIE DE PÁGINA (una sola vez, al final del documento; ver nota de @page arriba)
+  htmlStr += '<div class="footer">' +
+    '<img class="qr" src="' + ctx.qrUrl + '" alt="Código QR de verificación">' +
+    '<div class="txt">' +
+    'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). Este documento es ' +
+    'original y tiene validez conforme a la normativa vigente.<br>' +
+    'Oficina de Racionalización / Oficina General de Planificación &ndash; UNMSM. Fecha de emisión: ' + ctx.fechaEmision + '.' +
+    '</div>' +
+    '</div>';
+
   htmlStr += '</div></body></html>';
 
   return htmlStr;
