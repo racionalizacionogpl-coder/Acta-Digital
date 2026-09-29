@@ -435,11 +435,13 @@ function construirHtmlActa(datos, ctx) {
   // Agenda, acuerdos y compromisos siguen en la misma hoja si caben; si no, pasan a
   // una hoja nueva. Las alturas (mm) son estimadas: el motor de PDF no permite medir.
   var ALTO_FILA_ASISTENTE = 15;
-  var ALTO_HOJA_NUEVA = 245;
+  var ALTO_HOJA_NUEVA = 225;
+  // Apps Script renderiza algo más alto que Chrome: se reserva un margen para no desbordar el pie
+  var MARGEN_SEGURIDAD = 20;
   var capacidadHoja = datos.asistentes.length <= FILAS_PRIMERA_HOJA ? FILAS_PRIMERA_HOJA : FILAS_SIGUIENTES_HOJAS;
   var filasEnHoja = datos.asistentes.length <= FILAS_PRIMERA_HOJA ? datos.asistentes.length :
     (datos.asistentes.length - FILAS_PRIMERA_HOJA - 1) % FILAS_SIGUIENTES_HOJAS + 1;
-  var espacioLibre = (capacidadHoja - filasEnHoja) * ALTO_FILA_ASISTENTE;
+  var espacioLibre = (capacidadHoja - filasEnHoja) * ALTO_FILA_ASISTENTE - MARGEN_SEGURIDAD;
 
   function lineas(texto, caracteresPorLinea) {
     return Math.max(1, Math.ceil(String(texto || '').length / caracteresPorLinea));
