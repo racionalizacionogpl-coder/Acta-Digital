@@ -296,22 +296,21 @@ function construirHtmlActa(datos, ctx) {
     '.footer { margin-top: 8mm; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; }' +
     '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
     '.footer .txt { flex: 1; }' +
-    '.asistentes { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 7mm; font-size: 9.3pt; }' +
-    '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 2.6mm 3mm; text-align: left; color: var(--principal-oscuro); font-size: 8.3pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
-    '.asistentes td { border: 0.6pt solid var(--linea); padding: 3mm; vertical-align: middle; }' +
+    '.asistentes { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 5mm; font-size: 8.6pt; }' +
+    '.asistentes th { background: var(--fondo-suave); border: 0.6pt solid var(--linea); padding: 1.8mm 2.5mm; text-align: left; color: var(--principal-oscuro); font-size: 7.8pt; text-transform: uppercase; letter-spacing: 0.3pt; }' +
+    '.asistentes td { border: 0.6pt solid var(--linea); padding: 1.6mm 2.5mm; vertical-align: middle; }' +
     '.asistentes tr { page-break-inside: avoid; break-inside: avoid-page; }' +
     '.asistentes td.n { text-align: center; width: 8mm; color: var(--gris-suave); }' +
-    '.asistentes td.firma { text-align: left; width: 64mm; padding: 2mm 3mm; }' +
-    // Sello de firma digital: tabla de 2 columnas (no flexbox) para que el
-    // conversor de Apps Script a PDF alinee el escudo con el texto siempre.
-    // Sin tabla anidada (rompía el corte de página de la fila) ni flexbox
-    // (desalineaba el sello en el conversor a PDF): imagen y texto van
-    // inline-block con vertical-align:middle, la técnica más compatible.
+    '.asistentes td.cu { text-align: center; font-size: 8pt; line-height: 1.3; }' +
+    '.asistentes td.firma { text-align: left; width: 56mm; padding: 1.2mm 2.5mm; }' +
+    // Sello de firma digital: imagen y texto van inline-block con
+    // vertical-align:middle (sin tabla anidada ni flexbox), la técnica más
+    // compatible con el conversor de Apps Script a PDF.
     '.asistentes td.firma .sello { display: block; }' +
-    '.asistentes td.firma .sello img { width: 12mm; height: auto; display: inline-block; vertical-align: middle; margin-right: 2.5mm; }' +
-    '.asistentes td.firma .sello .sello-txt { display: inline-block; vertical-align: middle; width: 42mm; font-size: 7.8pt; line-height: 1.5; color: #333333; text-align: left; }' +
-    '.asistentes td.firma .sello .sello-txt b { font-size: 8.6pt; color: #1a1a1a; }' +
-    '.asistentes td.firma img.firma-img { max-height: 40px; max-width: 100%; display: block; margin: auto; }' +
+    '.asistentes td.firma .sello img { width: 9mm; height: auto; display: inline-block; vertical-align: middle; margin-right: 2mm; }' +
+    '.asistentes td.firma .sello .sello-txt { display: inline-block; vertical-align: middle; width: 42mm; font-size: 6.6pt; line-height: 1.25; color: #333333; text-align: left; }' +
+    '.asistentes td.firma .sello .sello-txt b { font-size: 7.2pt; color: #1a1a1a; }' +
+    '.asistentes td.firma img.firma-img { max-height: 30px; max-width: 100%; display: block; margin: auto; }' +
     '.agenda-list { margin: 0 0 7mm 0; padding: 0; list-style: none; }' +
     '.agenda-list li { display: flex; align-items: center; gap: 3mm; padding: 2.8mm 0; border-bottom: 0.5pt dashed var(--linea); font-size: 10pt; }' +
     '.agenda-list li:last-child { border-bottom: none; }' +
@@ -356,16 +355,49 @@ function construirHtmlActa(datos, ctx) {
     '</table>' +
 
     // PARTICIPANTES
-    '<div class="section-title">Participantes</div>' +
-    '<table class="asistentes">' +
-    '<thead><tr>' +
-    '<th style="width:8mm;">N°</th>' +
-    '<th>Nombre y apellidos</th>' +
-    '<th style="width:36mm;">Cargo / Unidad</th>' +
-    '<th style="width:64mm;">Firma</th>' +
-    '</tr></thead>';
-  
+    // La tabla se corta manualmente cada FILAS_POR_HOJA filas, con el pie
+    // real (QR + texto) repetido después de cada corte. El conversor de
+    // Apps Script a PDF no pagina de forma confiable ni position:fixed ni
+    // las margin boxes de @page (se probaron ambas y fallan de formas
+    // distintas), así que aquí se decide la paginación a mano en vez de
+    // dejársela al motor.
+    '<div class="section-title">Participantes</div>';
+
+  // La primera hoja ya trae membrete, título y datos de la reunión, así que
+  // le cabe menos filas que a las hojas siguientes (solo con el encabezado
+  // de la tabla). Los cortes de página se calculan con estos dos números.
+  var FILAS_PRIMERA_HOJA = 3;
+  var FILAS_SIGUIENTES_HOJAS = 8;
+  function construirTablaAsistentes() {
+    return '<table class="asistentes">' +
+      '<thead><tr>' +
+      '<th style="width:8mm;">N°</th>' +
+      '<th>Nombre y apellidos</th>' +
+      '<th style="width:32mm;">Cargo / Unidad</th>' +
+      '<th style="width:56mm;">Firma</th>' +
+      '</tr></thead><tbody>';
+  }
+  function construirPiePagina(ctx) {
+    return '<div class="footer">' +
+      '<img class="qr" src="' + ctx.qrUrl + '" alt="Código QR de verificación">' +
+      '<div class="txt">' +
+      'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). Este documento es ' +
+      'original y tiene validez conforme a la normativa vigente.<br>' +
+      'Oficina de Racionalización / Oficina General de Planificación &ndash; UNMSM. Fecha de emisión: ' + ctx.fechaEmision + '.' +
+      '</div>' +
+      '</div>';
+  }
+
+  htmlStr += construirTablaAsistentes();
+
+  var proximoCorte = FILAS_PRIMERA_HOJA;
   datos.asistentes.forEach(function(asis, index) {
+    if (index > 0 && index === proximoCorte) {
+      htmlStr += '</tbody></table>' + construirPiePagina(ctx) +
+        '<div class="page-break"></div>' + construirTablaAsistentes();
+      proximoCorte += FILAS_SIGUIENTES_HOJAS;
+    }
+
     var firmaContent = '';
     if (asis.usarFirmaDigital) {
       var apellidosMayus = asis.apellidos.toUpperCase();
@@ -385,13 +417,13 @@ function construirHtmlActa(datos, ctx) {
       firmaContent = '<img class="firma-img" src="' + asis.firma + '" alt="Firma"/>';
     }
 
-    htmlStr += '<tbody><tr>' +
+    htmlStr += '<tr>' +
       '<td class="n">' + (index + 1) + '</td>' +
       '<td>' + asis.nombres + ' ' + asis.apellidos + '</td>' +
-      '<td style="text-align:center;">' + asis.cargo + ' - ' + asis.unidad + '</td>' +
-      '<td class="firma">' + firmaContent + '</td></tr></tbody>';
+      '<td class="cu">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
+      '<td class="firma">' + firmaContent + '</td></tr>';
   });
-  htmlStr += '</table>';
+  htmlStr += '</tbody></table>';
 
   // AGENDA
   htmlStr += '<div class="section-title">Agenda tratada</div>' +
@@ -459,15 +491,8 @@ function construirHtmlActa(datos, ctx) {
     htmlStr += '</div>';
   }
   
-  // PIE DE PÁGINA (una sola vez, al final del documento; ver nota de @page arriba)
-  htmlStr += '<div class="footer">' +
-    '<img class="qr" src="' + ctx.qrUrl + '" alt="Código QR de verificación">' +
-    '<div class="txt">' +
-    'Documento certificado y generado digitalmente por el Sistema Integral de Actas (SIGA). Este documento es ' +
-    'original y tiene validez conforme a la normativa vigente.<br>' +
-    'Oficina de Racionalización / Oficina General de Planificación &ndash; UNMSM. Fecha de emisión: ' + ctx.fechaEmision + '.' +
-    '</div>' +
-    '</div>';
+  // PIE DE PÁGINA final (los intermedios ya se imprimieron dentro de la tabla de participantes)
+  htmlStr += construirPiePagina(ctx);
 
   htmlStr += '</div></body></html>';
 
