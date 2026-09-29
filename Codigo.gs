@@ -245,7 +245,7 @@ function formatearFechaActa(fecha) {
 function construirHtmlActa(datos, ctx) {
   var htmlStr = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
     '<style>' +
-    '@page { size: A4; margin: 12mm 16mm 26mm 16mm; }' +
+    '@page { size: A4; margin: 12mm 16mm 26mm 16mm; @bottom-right { content: "P\u00e1g. " counter(page) " de " counter(pages); font-family: Arial, Helvetica, sans-serif; font-size: 8pt; font-weight: bold; color: #1f3a5f; border: 0.6pt solid #dcdcdc; padding: 1mm 3mm; width: 26mm; height: 6mm; margin: 0 0 4mm 0; text-align: center; } }' +
     '* { box-sizing: border-box; }' +
     'html, body {' +
     '  margin: 0; padding: 0 0 6mm 0;' +
@@ -315,7 +315,6 @@ function construirHtmlActa(datos, ctx) {
     '.footer { position: fixed; bottom: 0; left: 0; right: 0; padding-top: 3mm; border-top: 0.7pt solid var(--linea); display: flex; align-items: center; gap: 5mm; font-size: 7.3pt; color: var(--gris-suave); line-height: 1.5; background: #ffffff; }' +
     '.footer img.qr { width: 16mm; height: 16mm; flex-shrink: 0; }' +
     '.footer .txt { flex: 1; }' +
-    '.footer .pag { flex-shrink: 0; border: 0.6pt solid var(--linea); padding: 1mm 3mm; font-size: 8pt; font-weight: bold; color: var(--principal); align-self: center; }' +
     '</style></head><body>' +
 
     '<img class="watermark" src="' + ctx.logo + '" alt="">' +
@@ -459,7 +458,6 @@ function construirHtmlActa(datos, ctx) {
     'original y tiene validez conforme a la normativa vigente.<br>' +
     'Oficina de Racionalización / Oficina General de Planificación &ndash; UNMSM. Fecha de emisión: ' + ctx.fechaEmision + '.' +
     '</div>' +
-    '<div class="pag">Pág. 1</div>' +
     '</div>' +
 
     '</div></body></html>';
