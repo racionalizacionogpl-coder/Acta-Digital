@@ -373,7 +373,7 @@ function construirHtmlActa(datos, ctx) {
   // le cabe menos filas que a las hojas siguientes (solo con el encabezado
   // de la tabla). Los cortes de página se calculan con estos dos números.
   var FILAS_PRIMERA_HOJA = 6;
-  var FILAS_SIGUIENTES_HOJAS = 16;
+  var FILAS_SIGUIENTES_HOJAS = 15;
   function construirTablaAsistentes() {
     return '<table class="asistentes">' +
       '<thead><tr>' +
@@ -430,40 +430,61 @@ function construirHtmlActa(datos, ctx) {
       '<td class="cu">' + asis.cargo + '<br>' + asis.unidad + '</td>' +
       '<td class="firma">' + firmaContent + '</td></tr>';
   });
-  // Sin este cierre la agenda desborda la hoja de participantes y su pie se va a la siguiente
-  htmlStr += '</tbody></table>' + construirPiePagina(ctx) + '</div>' +
-    '<div class="page-break"></div><div class="pagina">';
+  htmlStr += '</tbody></table>';
+
+  // Agenda, acuerdos y compromisos siguen en la misma hoja si caben; si no, pasan a
+  // una hoja nueva. Las alturas (mm) son estimadas: el motor de PDF no permite medir.
+  var ALTO_FILA_ASISTENTE = 15;
+  var ALTO_HOJA_NUEVA = 245;
+  var capacidadHoja = datos.asistentes.length <= FILAS_PRIMERA_HOJA ? FILAS_PRIMERA_HOJA : FILAS_SIGUIENTES_HOJAS;
+  var filasEnHoja = datos.asistentes.length <= FILAS_PRIMERA_HOJA ? datos.asistentes.length :
+    (datos.asistentes.length - FILAS_PRIMERA_HOJA - 1) % FILAS_SIGUIENTES_HOJAS + 1;
+  var espacioLibre = (capacidadHoja - filasEnHoja) * ALTO_FILA_ASISTENTE;
+
+  function lineas(texto, caracteresPorLinea) {
+    return Math.max(1, Math.ceil(String(texto || '').length / caracteresPorLinea));
+  }
+  function agregarBloque(html, alto) {
+    if (alto > espacioLibre) {
+      htmlStr += construirPiePagina(ctx) + '</div><div class="page-break"></div><div class="pagina">';
+      espacioLibre = ALTO_HOJA_NUEVA;
+    }
+    htmlStr += html;
+    espacioLibre -= alto;
+  }
 
   // AGENDA
-  htmlStr += '<div class="section-title">Agenda tratada</div>' +
+  var itemsAgenda = datos.agenda.length > 0 ? datos.agenda : ['&mdash;'];
+  agregarBloque('<div class="section-title">Agenda tratada</div>' +
     '<ul class="agenda-list">' +
-    (datos.agenda.length > 0 ?
-      datos.agenda.map(function(item, idx) { return '<li><span class="idx">' + (idx + 1) + '</span><span>' + item + '</span></li>'; }).join('') :
-      '<li><span class="idx">1</span><span>&mdash;</span></li>') +
-    '</ul>';
+    itemsAgenda.map(function(item, idx) { return '<li><span class="idx">' + (idx + 1) + '</span><span>' + item + '</span></li>'; }).join('') +
+    '</ul>',
+    14 + itemsAgenda.reduce(function(t, item) { return t + 6 + 5 * lineas(item, 90); }, 0));
 
   // ACUERDOS (SIN PLAZO)
   if (datos.acuerdos.length > 0) {
-    htmlStr += '<div class="section-title">Acuerdos</div>' +
+    var htmlAcuerdos = '<div class="section-title">Acuerdos</div>' +
       '<table class="registro-table">' +
       '<thead><tr>' +
       '<th style="width:8mm;">N°</th>' +
       '<th>Acuerdo</th>' +
       '<th style="width:40mm;">Responsable</th>' +
       '</tr></thead>';
+    var altoAcuerdos = 30;
     datos.acuerdos.forEach(function(ac, idx) {
-      htmlStr += '<tbody><tr>' +
+      htmlAcuerdos += '<tbody><tr>' +
         '<td class="n">' + (idx + 1) + '</td>' +
         '<td>' + ac.texto + '</td>' +
         '<td>' + ac.responsable + '</td>' +
         '</tr></tbody>';
+      altoAcuerdos += 7 + 4.5 * Math.max(lineas(ac.texto, 75), lineas(ac.responsable, 20));
     });
-    htmlStr += '</table>';
+    agregarBloque(htmlAcuerdos + '</table>', altoAcuerdos);
   }
 
   // COMPROMISOS (CON PLAZO)
   if (datos.compromisos.length > 0) {
-    htmlStr += '<div class="section-title">Compromisos</div>' +
+    var htmlCompromisos = '<div class="section-title">Compromisos</div>' +
       '<table class="registro-table">' +
       '<thead><tr>' +
       '<th style="width:8mm;">N°</th>' +
@@ -472,18 +493,19 @@ function construirHtmlActa(datos, ctx) {
       '<th style="width:22mm;">Plazo</th>' +
       '<th style="width:30mm;">Fecha límite</th>' +
       '</tr></thead>';
-
+    var altoCompromisos = 30;
     datos.compromisos.forEach(function(co, idx) {
       var fStr = ctx.fechasLimite[idx] || '&mdash;';
-      htmlStr += '<tbody><tr>' +
+      htmlCompromisos += '<tbody><tr>' +
         '<td class="n">' + (idx + 1) + '</td>' +
         '<td>' + co.texto + '</td>' +
         '<td>' + co.responsable + '</td>' +
         '<td>' + co.plazo + ' ' + co.unidad + '</td>' +
         '<td>' + fStr + '</td>' +
         '</tr></tbody>';
+      altoCompromisos += 7 + 4.5 * Math.max(lineas(co.texto, 48), lineas(co.responsable, 15), 2);
     });
-    htmlStr += '</table>';
+    agregarBloque(htmlCompromisos + '</table>', altoCompromisos);
   }
 
   // EVIDENCIAS FOTOGRÁFICAS (en su propia hoja, con su propio pie)
