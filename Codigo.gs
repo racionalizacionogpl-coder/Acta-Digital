@@ -372,8 +372,8 @@ function construirHtmlActa(datos, ctx) {
   // La primera hoja ya trae membrete, título y datos de la reunión, así que
   // le cabe menos filas que a las hojas siguientes (solo con el encabezado
   // de la tabla). Los cortes de página se calculan con estos dos números.
-  var FILAS_PRIMERA_HOJA = 3;
-  var FILAS_SIGUIENTES_HOJAS = 8;
+  var FILAS_PRIMERA_HOJA = 6;
+  var FILAS_SIGUIENTES_HOJAS = 16;
   function construirTablaAsistentes() {
     return '<table class="asistentes">' +
       '<thead><tr>' +
